@@ -1,0 +1,42 @@
+---
+language: c++
+compiler:
+  - gcc
+
+git:
+  submodules: true
+
+addons:
+  apt:
+    update: true
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - lcov
+      - g++-6
+env:
+  - CC=gcc-6
+  - CXX=g++-6
+
+branches:
+  only:
+    - master
+    - /^travis.*/
+    - /^v.*/
+
+stages:
+  - name: test
+
+jobs:
+  include:
+    - stage: test
+      script:
+        - mkdir -p build/run
+        - cd build/run
+        - cmake -DCMAKE_BUILD_TYPE=Debug ../..
+        - make
+        - make test_with_coverage
+
+      after_success:
+        - mv test_with_coverage.info.cleaned test_with_coverage.info
+        - bash <(curl -s https://codecov.io/bash) -X gcov
