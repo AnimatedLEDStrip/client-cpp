@@ -1,0 +1,17 @@
+a.out
+cmake-build-debug/
+CMakeFiles/
+cmake_install.cmake
+CMakeCache.txt
+CTestTestfile.cmake
+Makefile
+AnimatedLEDStripClient.cbp
+run_tests
+*.o
+*.a
+build/
+src/nlohmann/
+src/safe-map/
+googletest-build/
+googletest-download/
+googletest-src/
