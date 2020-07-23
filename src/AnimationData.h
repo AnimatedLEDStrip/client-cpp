@@ -25,7 +25,6 @@
 
 #include <string>
 #include <nlohmann/json.hpp>
-#include "Animation.h"
 #include "ColorContainer.h"
 #include "Continuous.h"
 #include "Direction.h"
@@ -34,7 +33,7 @@
 
 class AnimationData {
 public:
-    Animation animation = COLOR;
+    std::string animation = "Color";
     std::vector<ColorContainer> colors;
     int center = -1;
     Continuous continuous = DEFAULT;
@@ -42,48 +41,49 @@ public:
     double delay_mod = 1.0;
     Direction direction = FORWARD;
     int distance = -1;
-    int end_pixel = -1;
     std::string id = "";
+    std::string section = "";
     int spacing = -1;
-    int start_pixel = 0;
 
 
-    AnimationData &setAnimation(enum Animation a);
+    AnimationData & setAnimation(std::string & a);
 
-    AnimationData &addColor(struct ColorContainer &c);
+    AnimationData & setAnimation(const char * a);
 
-    AnimationData &setCenter(int c);
+    AnimationData & addColor(struct ColorContainer & c);
 
-    AnimationData &setContinuous(enum Continuous c);
+    AnimationData & setCenter(int c);
 
-    AnimationData &setDelay(long d);
+    AnimationData & setContinuous(enum Continuous c);
 
-    AnimationData &setDelayMod(double d);
+    AnimationData & setDelay(long d);
 
-    AnimationData &setDirection(enum Direction d);
+    AnimationData & setDelayMod(double d);
 
-    AnimationData &setDistance(int d);
+    AnimationData & setDirection(enum Direction d);
 
-    AnimationData &setEndPixel(int p);
+    AnimationData & setDistance(int d);
 
-    AnimationData &setId(std::string &i);
+    AnimationData & setId(std::string & i);
 
-    AnimationData &setId(char *i);
+    AnimationData & setId(const char * i);
 
-    AnimationData &setSpacing(int s);
+    AnimationData & setSection(std::string & s);
 
-    AnimationData &setStartPixel(int p);
+    AnimationData & setSection(const char * s);
+
+    AnimationData & setSpacing(int s);
 
 
-    int json(char **buff) const {
+    int json(char ** buff) const {
         std::string data = "DATA:{";
 
         data.append(R"("animation":")");
-        data.append(animation_string(animation));
+        data.append(animation);
 
         data.append(R"(","colors":[)");
 
-        char *cBuff = new char[MAX_LEN];
+        char * cBuff = new char[MAX_LEN];
         for (ColorContainer c : colors) {
             cBuff[0] = 0;
             c.json(&cBuff);
@@ -111,17 +111,14 @@ public:
         data.append(R"(","distance":)");
         data.append(std::to_string(distance));
 
-        data.append(R"(,"endPixel":)");
-        data.append(std::to_string(end_pixel));
-
         data.append(R"(,"id":")");
         data.append(id);
 
+        data.append(R"(,"section":")");
+        data.append(section);
+
         data.append(R"(","spacing":)");
         data.append(std::to_string(spacing));
-
-        data.append(R"(,"startPixel":)");
-        data.append(std::to_string(start_pixel));
 
         data.append("}");
 
@@ -129,9 +126,9 @@ public:
         return data.size();
     }
 
-    static AnimationData &get_data_from_json(nlohmann::json data) {
-        auto *d = new AnimationData();
-        d->setAnimation(animation_from_string(((std::string) data["animation"]).c_str()));
+    static AnimationData & get_data_from_json(nlohmann::json data) {
+        auto * d = new AnimationData();
+        d->setAnimation(((std::string) data["animation"]).c_str());
         for (auto c : data["colors"]) {
             ColorContainer cc;
             for (int col : c["colors"])
@@ -147,10 +144,9 @@ public:
         d->setDelayMod(data["delayMod"]);
         d->setDirection(direction_from_string(((std::string) data["direction"]).c_str()));
         d->setDistance(data["distance"]);
-        d->setEndPixel(data["endPixel"]);
-        d->id = data["id"];
+        d->setId(((std::string) data["id"]).c_str());
+        d->setSection(((std::string) data["section"]).c_str());
         d->setSpacing(data["spacing"]);
-        d->setStartPixel(data["startPixel"]);
         return *d;
     }
 };

@@ -22,7 +22,7 @@
 
 #include "Continuous.h"
 
-const char *continuous_string(enum Continuous c) {
+const char * continuous_string(enum Continuous c) {
     switch (c) {
         case CONTINUOUS:
             return "true";

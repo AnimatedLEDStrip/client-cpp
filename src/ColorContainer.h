@@ -32,12 +32,12 @@
 struct ColorContainer {
     std::vector<long> colors;
 
-    ColorContainer &addColor(long c) {
+    ColorContainer & addColor(long c) {
         colors.push_back(c);
         return *this;
     }
 
-    int json(char **buff) {
+    int json(char ** buff) {
         std::string data = R"({"colors":[)";
 
         for (auto c : colors) {

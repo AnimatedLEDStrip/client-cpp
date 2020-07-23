@@ -29,7 +29,7 @@ enum Continuous {
     DEFAULT
 };
 
-const char *continuous_string(enum Continuous c);
+const char * continuous_string(enum Continuous c);
 
 Continuous continuous_from_bool(bool);
 

@@ -53,17 +53,17 @@ class AnimationSender {
     pthread_t receiver_handle{};
 
 public:
-    StripInfo *info{};
+    StripInfo * info{};
 
     safe::map<std::string, AnimationData> running_animations;
 
-    AnimationSender(const std::string &host, int port) {
+    AnimationSender(const std::string & host, int port) {
         host_name = host;
         port_num = port;
         if ((socket_desc = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
             perror("socket()");
         }
-        struct hostent *hp;
+        struct hostent * hp;
         if ((hp = gethostbyname(host.c_str())) == nullptr) {
             perror("gethostbyname()");
         }
@@ -79,16 +79,16 @@ public:
     int end();
 
 
-    int sendAnimation(const AnimationData &d);
+    int sendAnimation(const AnimationData & d);
 
-    int endAnimation(const std::string &id);
+    int endAnimation(const std::string & id);
 
-    int endAnimation(const AnimationData &d);
+    int endAnimation(const AnimationData & d);
 
 private:
     int connect();
 
-    static void *receiverLoop(void *);
+    static void * receiverLoop(void *);
 };
 
 #endif // ANIMATEDLEDSTRIPCLIENT_ANIMATIONSENDER_H

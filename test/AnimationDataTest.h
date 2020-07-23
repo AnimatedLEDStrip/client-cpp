@@ -22,6 +22,7 @@
 
 #ifndef ANIMATEDLEDSTRIPCLIENT_ANIMATIONDATATEST_H
 #define ANIMATEDLEDSTRIPCLIENT_ANIMATIONDATATEST_H
+
 #include "AnimationData.h"
 #include "AnimationSender.h"
 #include "nlohmann/json.hpp"
@@ -33,24 +34,28 @@ namespace {
     TEST(AnimationData, DefaultConstructor) {
         const AnimationData data = AnimationData();
 
-        EXPECT_EQ(data.animation, COLOR);
+        EXPECT_STREQ(data.animation.c_str(), "Color");
         EXPECT_EQ(data.center, -1);
         EXPECT_EQ(data.continuous, DEFAULT);
         EXPECT_EQ(data.delay, -1);
         EXPECT_EQ(data.delay_mod, 1.0);
         EXPECT_EQ(data.direction, FORWARD);
         EXPECT_EQ(data.distance, -1);
-        EXPECT_EQ(data.end_pixel, -1);
         EXPECT_STREQ(data.id.c_str(), "");
+        EXPECT_STREQ(data.section.c_str(), "");
         EXPECT_EQ(data.spacing, -1);
-        EXPECT_EQ(data.start_pixel, 0);
     }
 
     TEST(AnimationData, SetAnimation) {
         AnimationData data = AnimationData();
-        EXPECT_EQ(data.animation, COLOR);
-        data.setAnimation(METEOR);
-        EXPECT_EQ(data.animation, METEOR);
+        EXPECT_STREQ(data.animation.c_str(), "Color");
+        char test[5];
+        strcpy(test, "Meteor");
+        data.setAnimation(test);
+        EXPECT_STREQ(data.animation.c_str(), "Meteor");
+        std::string test2 = "Multi Pixel Run";
+        data.setAnimation(test2);
+        EXPECT_STREQ(data.animation.c_str(), "Multi Pixel Run");
     }
 
     TEST(AnimationData, AddColor) {
@@ -109,13 +114,6 @@ namespace {
         EXPECT_EQ(data.distance, 50);
     }
 
-    TEST(AnimationData, SetEndPixel) {
-        AnimationData data = AnimationData();
-        EXPECT_EQ(data.end_pixel, -1);
-        data.setEndPixel(75);
-        EXPECT_EQ(data.end_pixel, 75);
-    }
-
     TEST(AnimationData, SetId) {
         AnimationData data = AnimationData();
         EXPECT_STREQ(data.id.c_str(), "");
@@ -128,6 +126,18 @@ namespace {
         EXPECT_STREQ(data.id.c_str(), "TEST2");
     }
 
+    TEST(AnimationData, SetSection) {
+        AnimationData data = AnimationData();
+        EXPECT_STREQ(data.section.c_str(), "");
+        char test[5];
+        strcpy(test, "TEST");
+        data.setSection(test);
+        EXPECT_STREQ(data.section.c_str(), "TEST");
+        std::string test2 = "TEST2";
+        data.setSection(test2);
+        EXPECT_STREQ(data.section.c_str(), "TEST2");
+    }
+
     TEST(AnimationData, SetSpacing) {
         AnimationData data = AnimationData();
         EXPECT_EQ(data.spacing, -1);
@@ -135,17 +145,10 @@ namespace {
         EXPECT_EQ(data.spacing, 5);
     }
 
-    TEST(AnimationData, SetStartPixel) {
-        AnimationData data = AnimationData();
-        EXPECT_EQ(data.start_pixel, 0);
-        data.setStartPixel(3);
-        EXPECT_EQ(data.start_pixel, 3);
-    }
-
     TEST(AnimationData, JSON) {
         AnimationData data = AnimationData();
 
-        data.setAnimation(METEOR);
+        data.setAnimation("Meteor");
 
         ColorContainer cc = ColorContainer();
         cc.addColor(0xFF);
@@ -162,25 +165,24 @@ namespace {
         data.setDelayMod(1.5);
         data.setDirection(BACKWARD);
         data.setDistance(45);
-        data.setEndPixel(200);
         std::string test_str = "TEST";
         data.setId(test_str);
+        data.setSection("SECT");
         data.setSpacing(5);
-        data.setStartPixel(15);
 
-        char *data_str = new char[1000];
+        char * data_str = new char[1000];
         data.json(&data_str);
         EXPECT_STREQ(data_str,
-                     "DATA:{\"animation\":\"METEOR\",\"colors\":[{\"colors\":[255,65280]},{\"colors\":[16711680]}],\"center\":50,\"continuous\":false,\"delay\":10,\"delayMod\":1.500000,\"direction\":\"BACKWARD\",\"distance\":45,\"endPixel\":200,\"id\":\"TEST\",\"spacing\":5,\"startPixel\":15}");
+                     "DATA:{\"animation\":\"Meteor\",\"colors\":[{\"colors\":[255,65280]},{\"colors\":[16711680]}],\"center\":50,\"continuous\":false,\"delay\":10,\"delayMod\":1.500000,\"direction\":\"BACKWARD\",\"distance\":45,\"id\":\"TEST\",\"section\":\"SECT\",\"spacing\":5}");
     }
 
     TEST(AnimationData, FromJSON) {
-        std::string data_str = R"({"animation":"METEOR","colors":[{"colors":[255,65280]},{"colors":[16711680]}],"center":50,"continuous":false,"delay":10,"delayMod":1.500000,"direction":"BACKWARD","distance":45,"endPixel":200,"id":"TEST","spacing":5,"startPixel":15})";
+        std::string data_str = R"({"animation":"Meteor","colors":[{"colors":[255,65280]},{"colors":[16711680]}],"center":50,"continuous":false,"delay":10,"delayMod":1.500000,"direction":"BACKWARD","distance":45,"id":"TEST","section":"SECT","spacing":5})";
 
         nlohmann::json data_json = nlohmann::json::parse(data_str);
         AnimationData data = AnimationData::get_data_from_json(data_json);
 
-        EXPECT_EQ(data.animation, METEOR);
+        EXPECT_STREQ(data.animation.c_str(), "Meteor");
         EXPECT_TRUE(data.colors.size() == 2);
         EXPECT_TRUE(data.colors[0].colors.size() == 2);
         EXPECT_EQ(data.colors[0].colors[0], 0xFF);
@@ -193,10 +195,9 @@ namespace {
         EXPECT_EQ(data.delay_mod, 1.5);
         EXPECT_EQ(data.direction, BACKWARD);
         EXPECT_EQ(data.distance, 45);
-        EXPECT_EQ(data.end_pixel, 200);
         EXPECT_STREQ(data.id.c_str(), "TEST");
+        EXPECT_STREQ(data.section.c_str(), "SECT");
         EXPECT_EQ(data.spacing, 5);
-        EXPECT_EQ(data.start_pixel, 15);
 
         // Test when continuous is null, as this is handled separately from true/false
         std::string data_str2 = R"({"animation":"METEOR","colors":[],"center":50,"continuous":null,"delay":10,"delayMod":1.500000,"direction":"BACKWARD","distance":45,"endPixel":200,"id":"TEST","spacing":5,"startPixel":15})";

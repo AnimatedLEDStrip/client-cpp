@@ -30,7 +30,7 @@ enum Direction {
     BACKWARD
 };
 
-const char *direction_string(enum Direction d);
+const char * direction_string(enum Direction d);
 
 Direction direction_from_string(const char *);
 

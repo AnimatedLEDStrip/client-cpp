@@ -23,67 +23,72 @@
 #include "AnimationData.h"
 
 
-AnimationData &AnimationData::setAnimation(enum Animation a) {
+AnimationData & AnimationData::setAnimation(std::string & a) {
     animation = a;
     return *this;
 }
 
-AnimationData &AnimationData::addColor(struct ColorContainer &c) {
+AnimationData & AnimationData::setAnimation(const char * a) {
+    animation = a;
+    return *this;
+}
+
+AnimationData & AnimationData::addColor(struct ColorContainer & c) {
     colors.push_back(c);
     return *this;
 }
 
-AnimationData &AnimationData::setCenter(int c) {
+AnimationData & AnimationData::setCenter(int c) {
     center = c;
     return *this;
 }
 
-AnimationData &AnimationData::setContinuous(enum Continuous c) {
+AnimationData & AnimationData::setContinuous(enum Continuous c) {
     continuous = c;
     return *this;
 }
 
-AnimationData &AnimationData::setDelay(long d) {
+AnimationData & AnimationData::setDelay(long d) {
     delay = d;
     return *this;
 }
 
-AnimationData &AnimationData::setDelayMod(double d) {
+AnimationData & AnimationData::setDelayMod(double d) {
     delay_mod = d;
     return *this;
 }
 
-AnimationData &AnimationData::setDirection(enum Direction d) {
+AnimationData & AnimationData::setDirection(enum Direction d) {
     direction = d;
     return *this;
 }
 
-AnimationData &AnimationData::setDistance(int d) {
+AnimationData & AnimationData::setDistance(int d) {
     distance = d;
     return *this;
 }
 
-AnimationData &AnimationData::setEndPixel(int p) {
-    end_pixel = p;
-    return *this;
-}
-
-AnimationData &AnimationData::setId(std::string &i) {
+AnimationData & AnimationData::setId(std::string & i) {
     id.assign(i);
     return *this;
 }
 
-AnimationData &AnimationData::setId(char *i) {
+AnimationData & AnimationData::setId(const char * i) {
     id.assign(i);
     return *this;
 }
 
-AnimationData &AnimationData::setSpacing(int s) {
+AnimationData & AnimationData::setSection(std::string & s) {
+    section = s;
+    return *this;
+}
+
+AnimationData & AnimationData::setSection(const char * s) {
+    section = s;
+    return *this;
+}
+
+AnimationData & AnimationData::setSpacing(int s) {
     spacing = s;
-    return *this;
-}
-
-AnimationData &AnimationData::setStartPixel(int p) {
-    start_pixel = p;
     return *this;
 }

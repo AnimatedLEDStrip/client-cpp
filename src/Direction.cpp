@@ -22,7 +22,7 @@
 
 #include "Direction.h"
 
-const char *direction_string(enum Direction d) {
+const char * direction_string(enum Direction d) {
     switch (d) {
         case FORWARD:
             return "FORWARD";
@@ -31,7 +31,7 @@ const char *direction_string(enum Direction d) {
     }
 }
 
-Direction direction_from_string(const char *dir) {
+Direction direction_from_string(const char * dir) {
     if (std::strcmp(dir, "FORWARD") == 0)
         return FORWARD;
     else if (std::strcmp(dir, "BACKWARD") == 0)

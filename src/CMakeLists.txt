@@ -22,10 +22,6 @@
 #target_link_libraries(running_animation_map Threads::Threads)
 #target_compile_options(running_animation_map PUBLIC -Wall -pedantic)
 
-add_library(animation Animation.cpp)
-target_include_directories(animation PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_compile_options(animation PUBLIC -Wall)
-
 add_library(continuous Continuous.cpp)
 target_include_directories(continuous PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_options(continuous PUBLIC -Wall)
@@ -37,7 +33,6 @@ target_compile_options(direction PUBLIC -Wall)
 
 add_library(animation_data AnimationData.cpp)
 target_include_directories(animation_data PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(animation_data animation)
 target_link_libraries(animation_data continuous)
 target_link_libraries(animation_data direction)
 target_compile_options(animation_data PUBLIC -Wall)
