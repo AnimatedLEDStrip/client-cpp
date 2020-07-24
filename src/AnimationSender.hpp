@@ -71,8 +71,10 @@ class AnimationSender {
             std::string token;
             tokens.clear();
 
-            while (std::getline(ss, token, ';'))
-                tokens.push_back(token);
+            while (std::getline(ss, token, ';')) {
+                if (strlen(token) > 5)
+                    tokens.push_back(token);
+            }
 
             for (const auto & s : tokens) {
                 auto t = s.substr(0, 4);
