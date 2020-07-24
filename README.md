@@ -50,4 +50,12 @@ The C++ library uses the following values for `continuous` and `direction`:
 - `direction`: `FORWARD`, `BACKWARD`
 
 ## Receiving Data
-Currently the C++ library only supports sending data.
+Received animations are saved to `runningAnimations`.
+
+To retrieve an animation, use
+
+```c++
+sender.runningAnimations.[ID];
+```
+
+where `ID` is the string ID of the animation.
