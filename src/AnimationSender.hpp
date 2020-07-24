@@ -55,6 +55,33 @@ class AnimationSender {
 
     pthread_t receiver_handle{};
 
+    std::string saveForLater;
+
+    int getString(std::string * retStr, const char * buff) {
+        char * workingBuff = new char[2 * MAX_LEN];
+        strcat(workingBuff, saveForLater.c_str());
+        strcat(workingBuff, buff);
+
+        std::string ret;
+
+        char * buffPtr = workingBuff;
+        int numDelimiters = 0;
+        while (numDelimiters < 3) {
+            if (*buffPtr == 0) {
+                saveForLater.assign(ret);
+                return -1;
+            }
+            if (*buffPtr == ';') numDelimiters++;
+            ret.append(reinterpret_cast<const char *>(*buffPtr++));
+        }
+
+        delete[] workingBuff;
+
+        retStr = &ret;
+
+        return ret.size();
+    }
+
     static void * receiverLoop(void * args) {
         AnimationSender sender = *((AnimationSender *) args);
         int ret;
@@ -67,13 +94,18 @@ class AnimationSender {
                 printf("error %d", ret);
             if (DEBUG) printf("%s\n", buff);
 
-            std::stringstream ss(buff);
-            std::string token;
-            tokens.clear();
+//            std::stringstream ss(buff);
+//            std::string token;
 
-            while (std::getline(ss, token, ';')) {
-                if (strlen(token.c_str()) > 5)
-                    tokens.push_back(token);
+//            while (std::getline(ss, token, ';')) {
+//                if (strlen(token.c_str()) > 5)
+//                    tokens.push_back(token);
+//            }
+
+            auto * retStr = new std::string;
+
+            while(sender.getString(retStr, buff) != -1) {
+                tokens.push_back(*retStr);
             }
 
             for (const auto & s : tokens) {
