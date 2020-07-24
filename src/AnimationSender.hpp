@@ -72,7 +72,7 @@ class AnimationSender {
             tokens.clear();
 
             while (std::getline(ss, token, ';')) {
-                if (strlen(token) > 5)
+                if (strlen(token.c_str()) > 5)
                     tokens.push_back(token);
             }
 
