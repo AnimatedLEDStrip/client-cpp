@@ -49,7 +49,7 @@ namespace {
     TEST(AnimationData, SetAnimation) {
         AnimationData data = AnimationData();
         EXPECT_STREQ(data.animation.c_str(), "Color");
-        char test[5];
+        char test[7];
         strcpy(test, "Meteor");
         data.setAnimation(test);
         EXPECT_STREQ(data.animation.c_str(), "Meteor");
@@ -130,12 +130,12 @@ namespace {
         AnimationData data = AnimationData();
         EXPECT_STREQ(data.section.c_str(), "");
         char test[5];
-        strcpy(test, "TEST");
+        strcpy(test, "SECT");
         data.setSection(test);
-        EXPECT_STREQ(data.section.c_str(), "TEST");
-        std::string test2 = "TEST2";
+        EXPECT_STREQ(data.section.c_str(), "SECT");
+        std::string test2 = "SECT2";
         data.setSection(test2);
-        EXPECT_STREQ(data.section.c_str(), "TEST2");
+        EXPECT_STREQ(data.section.c_str(), "SECT2");
     }
 
     TEST(AnimationData, SetSpacing) {
@@ -200,7 +200,7 @@ namespace {
         EXPECT_EQ(data.spacing, 5);
 
         // Test when continuous is null, as this is handled separately from true/false
-        std::string data_str2 = R"({"animation":"METEOR","colors":[],"center":50,"continuous":null,"delay":10,"delayMod":1.500000,"direction":"BACKWARD","distance":45,"endPixel":200,"id":"TEST","spacing":5,"startPixel":15})";
+        std::string data_str2 = R"({"animation":"Meteor","colors":[],"center":50,"continuous":null,"delay":10,"delayMod":1.500000,"direction":"BACKWARD","distance":45,"id":"TEST","section":"SECT","spacing":5})";
         nlohmann::json data_json2 = nlohmann::json::parse(data_str2);
         AnimationData data2 = AnimationData::get_data_from_json(data_json2);
 

@@ -20,13 +20,47 @@
  *  THE SOFTWARE.
  */
 
-#ifndef ANIMATEDLEDSTRIPCLIENT_STRIPINFO_H
-#define ANIMATEDLEDSTRIPCLIENT_STRIPINFO_H
+#include <string>
+#include <nlohmann/json.hpp>
+
+#ifndef ANIMATEDLEDSTRIP_STRIPINFO_H
+#define ANIMATEDLEDSTRIP_STRIPINFO_H
 
 struct StripInfo {
-    int numLEDs;
+    int numLEDs = 0;
+    int pin = -1;
+    bool imageDebugging = false;
+    std::string fileName = "";
+    int rendersBeforeSave = -1;
+    int threadCount = 100;
 
-    explicit StripInfo(int led_count) : numLEDs(led_count) {}
+    StripInfo & setNumLEDs(int n);
+
+    StripInfo & setPin(int p);
+
+    StripInfo & setImageDebugging(bool i);
+
+    StripInfo & setFileName(std::string f);
+
+    StripInfo & setFileName(const char * f);
+
+    StripInfo & setRendersBeforeSave(int r);
+
+    StripInfo & setThreadCount(int t);
+
+    static StripInfo & get_info_from_json(nlohmann::json data) {
+        auto * i = new StripInfo();
+
+        i->setNumLEDs(data["numLEDs"]);
+        i->setPin(data["pin"]);
+        i->setImageDebugging(data["imageDebugging"]);
+        i->setFileName(((std::string) data["fileName"]).c_str());
+        i->setRendersBeforeSave(data["rendersBeforeSave"]);
+        i->setThreadCount(data["threadCount"]);
+
+        return *i;
+    }
+
 };
 
-#endif //ANIMATEDLEDSTRIPCLIENT_STRIPINFO_H
+#endif //ANIMATEDLEDSTRIP_STRIPINFO_H

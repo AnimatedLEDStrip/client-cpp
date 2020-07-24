@@ -30,6 +30,10 @@ add_library(direction Direction.cpp)
 target_include_directories(direction PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_compile_options(direction PUBLIC -Wall)
 
+add_library(strip_info StripInfo.cpp)
+target_include_directories(strip_info PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_options(strip_info PUBLIC -Wall)
+
 
 add_library(animation_data AnimationData.cpp)
 target_include_directories(animation_data PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
@@ -41,6 +45,7 @@ add_library(animation_sender AnimationSender.cpp)
 target_include_directories(animation_sender PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(animation_sender Threads::Threads)
 target_link_libraries(animation_sender animation_data)
+target_link_libraries(animation_sender strip_info)
 target_compile_options(animation_sender PUBLIC -Wall)
 
 

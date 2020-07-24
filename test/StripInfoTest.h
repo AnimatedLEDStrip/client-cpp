@@ -20,8 +20,8 @@
  *  THE SOFTWARE.
  */
 
-#ifndef ANIMATEDLEDSTRIPCLIENT_STRIPINFOTEST_H
-#define ANIMATEDLEDSTRIPCLIENT_STRIPINFOTEST_H
+#ifndef ANIMATEDLEDSTRIP_STRIPINFOTEST_H
+#define ANIMATEDLEDSTRIP_STRIPINFOTEST_H
 
 #include "StripInfo.h"
 #include "gtest/gtest.h"
@@ -29,10 +29,76 @@
 namespace {
 
     TEST(StripInfo, Constructor) {
-        auto s = StripInfo(10);
-        EXPECT_EQ(s.numLEDs, 10);
+        StripInfo s = StripInfo();
+        EXPECT_EQ(s.numLEDs, 0);
+        EXPECT_EQ(s.pin, -1);
+        EXPECT_FALSE(s.imageDebugging);
+        EXPECT_STREQ(s.fileName.c_str(), "");
+        EXPECT_EQ(s.rendersBeforeSave, -1);
+        EXPECT_EQ(s.threadCount, 100);
+    }
+
+    TEST(StripInfo, SetNumLEDs) {
+        StripInfo s = StripInfo();
+        EXPECT_EQ(s.numLEDs, 0);
+        s.setNumLEDs(5);
+        EXPECT_EQ(s.numLEDs, 5);
+    }
+
+    TEST(StripInfo, SetPin) {
+        StripInfo s = StripInfo();
+        EXPECT_EQ(s.pin, -1);
+        s.setPin(3);
+        EXPECT_EQ(s.pin, 3);
+    }
+
+    TEST(StripInfo, SetImageDebugging) {
+        StripInfo s = StripInfo();
+        EXPECT_FALSE(s.imageDebugging);
+        s.setImageDebugging(true);
+        EXPECT_TRUE(s.imageDebugging);
+    }
+
+    TEST(StripInfo, SetFileName) {
+        StripInfo s = StripInfo();
+        EXPECT_STREQ(s.fileName.c_str(), "");
+        char test[9];
+        strcpy(test, "file.csv");
+        s.setFileName(test);
+        EXPECT_STREQ(s.fileName.c_str(), "file.csv");
+        std::string test2 = "file2.csv";
+        s.setFileName(test2);
+        EXPECT_STREQ(s.fileName.c_str(), "file2.csv");
+    }
+
+    TEST(StripInfo, SetRendersBeforeSave) {
+        StripInfo s = StripInfo();
+        EXPECT_EQ(s.rendersBeforeSave, -1);
+        s.setRendersBeforeSave(500);
+        EXPECT_EQ(s.rendersBeforeSave, 500);
+    }
+
+    TEST(StripInfo, SetThreadCount) {
+        StripInfo s = StripInfo();
+        EXPECT_EQ(s.threadCount, 100);
+        s.setThreadCount(200);
+        EXPECT_EQ(s.threadCount, 200);
+    }
+
+    TEST(StripInfo, FromJSON) {
+        std::string info_str = R"({"numLEDs":240,"pin":12,"imageDebugging":false,"fileName":"file.csv","rendersBeforeSave":1000,"threadCount":200})";
+
+        nlohmann::json info_json = nlohmann::json::parse(info_str);
+        StripInfo info = StripInfo::get_info_from_json(info_json);
+
+        EXPECT_EQ(info.numLEDs, 240);
+        EXPECT_EQ(info.pin, 12);
+        EXPECT_FALSE(info.imageDebugging);
+        EXPECT_STREQ(info.fileName.c_str(), "file.csv");
+        EXPECT_EQ(info.rendersBeforeSave, 1000);
+        EXPECT_EQ(info.threadCount, 200);
     }
 
 }
 
-#endif //ANIMATEDLEDSTRIPCLIENT_STRIPINFOTEST_H
+#endif //ANIMATEDLEDSTRIP_STRIPINFOTEST_H

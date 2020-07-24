@@ -20,8 +20,8 @@
  *  THE SOFTWARE.
  */
 
-#ifndef ANIMATEDLEDSTRIPCLIENT_ANIMATIONDATA_H
-#define ANIMATEDLEDSTRIPCLIENT_ANIMATIONDATA_H
+#ifndef ANIMATEDLEDSTRIP_ANIMATIONDATA_H
+#define ANIMATEDLEDSTRIP_ANIMATIONDATA_H
 
 #include <string>
 #include <nlohmann/json.hpp>
@@ -114,7 +114,7 @@ public:
         data.append(R"(,"id":")");
         data.append(id);
 
-        data.append(R"(,"section":")");
+        data.append(R"(","section":")");
         data.append(section);
 
         data.append(R"(","spacing":)");
@@ -128,7 +128,8 @@ public:
 
     static AnimationData & get_data_from_json(nlohmann::json data) {
         auto * d = new AnimationData();
-        d->setAnimation(((std::string) data["animation"]).c_str());
+        if (data["animation"] == NULL) d->setAnimation("");
+        else d->setAnimation(((std::string) data["animation"]).c_str());
         for (auto c : data["colors"]) {
             ColorContainer cc;
             for (int col : c["colors"])
@@ -144,12 +145,14 @@ public:
         d->setDelayMod(data["delayMod"]);
         d->setDirection(direction_from_string(((std::string) data["direction"]).c_str()));
         d->setDistance(data["distance"]);
-        d->setId(((std::string) data["id"]).c_str());
-        d->setSection(((std::string) data["section"]).c_str());
+        if (data["id"] == NULL) d->setId("");
+        else d->setId(((std::string) data["id"]).c_str());
+        if (data["section"] == NULL) d->setSection("");
+        else d->setSection(((std::string) data["section"]).c_str());
         d->setSpacing(data["spacing"]);
         return *d;
     }
 };
 
 
-#endif  // ANIMATEDLEDSTRIPCLIENT_ANIMATIONDATA_H
+#endif  // ANIMATEDLEDSTRIP_ANIMATIONDATA_H

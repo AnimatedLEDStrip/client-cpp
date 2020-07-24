@@ -20,8 +20,8 @@
  *  THE SOFTWARE.
  */
 
-#ifndef ANIMATEDLEDSTRIPCLIENT_DIRECTION_H
-#define ANIMATEDLEDSTRIPCLIENT_DIRECTION_H
+#ifndef ANIMATEDLEDSTRIP_DIRECTION_H
+#define ANIMATEDLEDSTRIP_DIRECTION_H
 
 #include <cstring>
 
@@ -34,4 +34,4 @@ const char * direction_string(enum Direction d);
 
 Direction direction_from_string(const char *);
 
-#endif //ANIMATEDLEDSTRIPCLIENT_DIRECTION_H
+#endif //ANIMATEDLEDSTRIP_DIRECTION_H

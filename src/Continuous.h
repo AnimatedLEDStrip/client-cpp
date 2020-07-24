@@ -20,8 +20,8 @@
  *  THE SOFTWARE.
  */
 
-#ifndef ANIMATEDLEDSTRIPCLIENT_CONTINUOUS_H
-#define ANIMATEDLEDSTRIPCLIENT_CONTINUOUS_H
+#ifndef ANIMATEDLEDSTRIP_CONTINUOUS_H
+#define ANIMATEDLEDSTRIP_CONTINUOUS_H
 
 enum Continuous {
     CONTINUOUS,
@@ -33,4 +33,4 @@ const char * continuous_string(enum Continuous c);
 
 Continuous continuous_from_bool(bool);
 
-#endif //ANIMATEDLEDSTRIPCLIENT_CONTINUOUS_H
+#endif //ANIMATEDLEDSTRIP_CONTINUOUS_H

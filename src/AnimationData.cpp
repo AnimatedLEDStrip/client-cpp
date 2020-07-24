@@ -24,12 +24,12 @@
 
 
 AnimationData & AnimationData::setAnimation(std::string & a) {
-    animation = a;
+    animation.assign(a);
     return *this;
 }
 
 AnimationData & AnimationData::setAnimation(const char * a) {
-    animation = a;
+    animation.assign(a);
     return *this;
 }
 
@@ -79,12 +79,12 @@ AnimationData & AnimationData::setId(const char * i) {
 }
 
 AnimationData & AnimationData::setSection(std::string & s) {
-    section = s;
+    section.assign(s);
     return *this;
 }
 
 AnimationData & AnimationData::setSection(const char * s) {
-    section = s;
+    section.assign(s);
     return *this;
 }
 
