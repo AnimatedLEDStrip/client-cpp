@@ -20,15 +20,42 @@
  *  THE SOFTWARE.
  */
 
-#include "AnimationDataTest.h"
-#include "ColorContainerTest.h"
-#include "EndAnimationTest.h"
-#include "StripInfoTest.h"
-#include "gtest/gtest.h"
+#ifndef ANIMATEDLEDSTRIP_ENDANIMATION_H
+#define ANIMATEDLEDSTRIP_ENDANIMATION_H
 
+#include <string>
+#include <nlohmann/json.hpp>
 
-int main(int argc, char ** argv) {
-    testing::InitGoogleTest(&argc, argv);
+struct EndAnimation {
+    std::string id = "";
 
-    return RUN_ALL_TESTS();
-}
+    EndAnimation & setId(std::string i) {
+        id.assign(i);
+        return *this;
+    }
+
+    EndAnimation & setId(const char * i) {
+        id.assign(i);
+        return *this;
+    }
+
+    EndAnimation() {}
+
+    EndAnimation(nlohmann::json data) {
+        if (data["id"] != nullptr) setId(((std::string) data["id"]).c_str());
+    }
+
+    int json(char ** buff) const {
+        std::string end = "END :{";
+
+        end.append(R"("id":")");
+        end.append(id);
+        end.append(R"("})");
+
+        std::strcpy(*buff, end.c_str());
+        return end.size();
+    }
+
+};
+
+#endif //ANIMATEDLEDSTRIP_ENDANIMATION_H

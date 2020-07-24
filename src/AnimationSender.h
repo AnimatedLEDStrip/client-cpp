@@ -38,6 +38,7 @@
 #include <nlohmann/json.hpp>
 #include <safe-map/safemap.h>
 #include "AnimationData.h"
+#include "EndAnimation.h"
 #include "StripInfo.h"
 
 using json = nlohmann::json;
@@ -83,7 +84,8 @@ class AnimationSender {
                     AnimationData d = AnimationData(json::parse(remainingData));
                     sender.running_animations.insert(std::pair<std::string, AnimationData>(d.id, d));
                 } else if (strcmp(type, "END ")) {
-                    // TODO
+                    EndAnimation e = EndAnimation(json::parse(remainingData));
+                    sender.running_animations.erase(e.id);
                 } else if (strcmp(type, "SECT")) {
                     // TODO
                 } else if (strcmp(type, "SINF")) {
@@ -91,20 +93,6 @@ class AnimationSender {
                     sender.info = &i;
                 } else {
 
-                }
-
-
-                if (strcmp(s.substr(0, 4).c_str(), "INFO") == 0) {
-                    json data = json::parse(s.substr(5));
-                    int num = data["numLEDs"];
-                    sender.info = new StripInfo();
-                } else if (strcmp(s.substr(0, 4).c_str(), "DATA") == 0) {
-                    json data = json::parse(s.substr(5));
-                    AnimationData d = AnimationData(data);
-//                if (d.animation == ENDANIMATION)
-//                    sender.running_animations.erase(d.id);
-//                else
-                    sender.running_animations.insert(std::pair<std::string, AnimationData>(d.id, d));
                 }
             }
             for (int i = 0; i < MAX_LEN; i++) buff[i] = 0;
@@ -123,6 +111,8 @@ class AnimationSender {
 
 public:
     StripInfo * info{};
+
+    static const char * delimiter;
 
     safe::map<std::string, AnimationData> running_animations;
 
@@ -167,43 +157,30 @@ public:
         return 0;
     }
 
-
-    int sendAnimation(const AnimationData & d) {
-        char * buff = new char[MAX_LEN];
-        int size = d.json(&buff);
+    int send(const char * buff, int size) {
+        char * sendBuff;
+        std::strcpy(sendBuff, buff);
+        std::strcat(sendBuff, delimiter);
         int ret;
-        if ((ret = write(socket_desc, buff, size)) < 0)
+        if ((ret = write(socket_desc, sendBuff, size + 3)) < 0)
             printf("error %d", ret);
-        return 0;
+        return ret;
     }
 
-    int endAnimation(const std::string & id) {
-        if (running_animations.count(id) == 0)
-            return 1;
-        else {
-//        AnimationData d = running_animations[id];
-//        d.setAnimation(ENDANIMATION);
-//        char *buff = new char[MAX_LEN];
-//
-//        int size = d.json(&buff);
-//        int ret;
-//        if ((ret = write(socket_desc, buff, size)) < 0)
-//            printf("error %d", ret);
-//        sleep(1);
-            return 0;
-        }
-    }
-
-    int endAnimation(const AnimationData & d) {
+    int send(const AnimationData & d) {
         char * buff = new char[MAX_LEN];
         int size = d.json(&buff);
-        int ret;
-        if ((ret = write(socket_desc, buff, size)) < 0)
-            printf("error %d", ret);
-        sleep(5);
-        return 0;
+        return send(buff, size);
+    }
+
+    int send(const EndAnimation & e) {
+        char * buff = new char[MAX_LEN];
+        int size = e.json(&buff);
+        return send(buff, size);
     }
 
 };
+
+const char * AnimationSender::delimiter = ";;;";
 
 #endif // ANIMATEDLEDSTRIP_ANIMATIONSENDER_H
