@@ -1,6 +1,7 @@
 # AnimatedLEDStrip Client Library for C++
 
 [![Build Status](https://travis-ci.com/AnimatedLEDStrip/client-cpp.svg?branch=master)](https://travis-ci.com/AnimatedLEDStrip/client-cpp)
+[![codecov](https://codecov.io/gh/AnimatedLEDStrip/client-cpp/branch/master/graph/badge.svg)](https://codecov.io/gh/AnimatedLEDStrip/client-cpp)
 
 This library allows a C++ 11 client to connect to an AnimatedLEDStrip server, allowing the client to send animations to the server and receive currently running animations from the server, among other information.
 
