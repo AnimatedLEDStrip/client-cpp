@@ -23,6 +23,7 @@
 #ifndef ANIMATEDLEDSTRIP_ANIMATIONDATA_HPP
 #define ANIMATEDLEDSTRIP_ANIMATIONDATA_HPP
 
+#include <iostream>
 #include <string>
 #include <nlohmann/json.hpp>
 #include "ColorContainer.hpp"
@@ -55,7 +56,7 @@ public:
     int spacing = -1;
 
 
-    AnimationData & setAnimation(std::string & a) {
+    AnimationData & setAnimation(const std::string & a) {
         animation.assign(a);
         return *this;
     }
@@ -65,7 +66,7 @@ public:
         return *this;
     }
 
-    AnimationData & addColor(struct ColorContainer & c) {
+    AnimationData & addColor(ColorContainer & c) {
         colors.push_back(c);
         return *this;
     }
@@ -100,7 +101,7 @@ public:
         return *this;
     }
 
-    AnimationData & setId(std::string & i) {
+    AnimationData & setId(const std::string & i) {
         id.assign(i);
         return *this;
     }
@@ -110,7 +111,7 @@ public:
         return *this;
     }
 
-    AnimationData & setSection(std::string & s) {
+    AnimationData & setSection(const std::string & s) {
         section.assign(s);
         return *this;
     }
@@ -128,41 +129,72 @@ public:
     AnimationData() = default;
 
     explicit AnimationData(nlohmann::json data) {
-        if (data["animation"] != nullptr) setAnimation(((std::string) data["animation"]).c_str());
+        if (data["animation"].is_string())
+            setAnimation(data["animation"].get<std::string>());
+        else if (!data["animation"].is_null())
+            std::cerr << "Bad type for animation" << data["animation"].type_name() << std::endl;
 
-        if (data["colors"] != nullptr)
-            for (auto c : data["colors"]) {
-                ColorContainer cc;
-                for (int col : c["colors"])
-                    cc.addColor(col);
-                addColor(cc);
+        if (data["colors"].is_array())
+            for (auto & c : data["colors"].items()) {
+                if (c.value().is_object()) {
+                    ColorContainer cc = ColorContainer(c.value());
+                    addColor(cc);
+                }
             }
+        else if (!data["colors"].is_null())
+            std::cerr << "Bad type for colors" << data["colors"].type_name() << std::endl;
 
-        if (data["center"] != nullptr) setCenter(data["center"]);
+        if (data["center"].is_number_integer())
+            setCenter(data["center"].get<int>());
+        else if (!data["center"].is_null())
+            std::cerr << "Bad type for center" << data["center"].type_name() << std::endl;
 
-        if (data["continuous"] == nullptr) setContinuous(DEFAULT);
-        else if (data["continuous"] == true) setContinuous(CONTINUOUS);
-        else if (data["continuous"] == false) setContinuous(NONCONTINUOUS);
+        if (data["continuous"].is_null())
+            setContinuous(DEFAULT);
+        else if (data["continuous"].is_boolean() && data["continuous"].get<bool>())
+            setContinuous(CONTINUOUS);
+        else if (data["continuous"].is_boolean() && !data["continuous"].get<bool>())
+            setContinuous(NONCONTINUOUS);
+        else
+            std::cerr << "Bad type for continuous" << data["continuous"].type_name() << std::endl;
 
-        if (data["delay"] != nullptr) setDelay(data["delay"]);
+        if (data["delay"].is_number_integer())
+            setDelay(data["delay"].get<int>());
+        else if (!data["delay"].is_null())
+            std::cerr << "Bad type for delay" << data["delay"].type_name() << std::endl;
 
-        if (data["delayMod"] != nullptr) setDelayMod(data["delayMod"]);
+        if (data["delayMod"].is_number_float())
+            setDelayMod(data["delayMod"].get<double>());
+        else if (!data["delayMod"].is_null())
+            std::cerr << "Bad type for delayMod" << data["delayMod"].type_name() << std::endl;
 
-        if (data["direction"] != nullptr) {
-            if (std::strcmp(((std::string) data["direction"]).c_str(), "FORWARD") == 0)
-                setDirection(FORWARD);
-            else if (std::strcmp(((std::string) data["direction"]).c_str(), "BACKWARD") == 0)
-                setDirection(BACKWARD);
-            else setDirection(FORWARD);
-        }
+        if (data["direction"].is_string() && std::strcmp(data["direction"].get<std::string>().c_str(), "FORWARD") == 0)
+            setDirection(FORWARD);
+        else if (data["direction"].is_string() &&
+                 std::strcmp(data["direction"].get<std::string>().c_str(), "BACKWARD") == 0)
+            setDirection(BACKWARD);
+        else if (!data["direction"].is_null())
+            std::cerr << "Bad type for direction" << data["direction"].type_name() << std::endl;
 
-        if (data["distance"] != nullptr) setDistance(data["distance"]);
+        if (data["distance"].is_number_integer())
+            setDistance(data["distance"].get<int>());
+        else if (!data["distance"].is_null())
+            std::cerr << "Bad type for distance" << data["distance"].type_name() << std::endl;
 
-        if (data["id"] != nullptr) setId(((std::string) data["id"]).c_str());
+        if (data["id"].is_string())
+            setId(data["id"].get<std::string>());
+        else if (!data["id"].is_null())
+            std::cerr << "Bad type for id" << data["id"].type_name() << std::endl;
 
-        if (data["section"] != nullptr) setSection(((std::string) data["section"]).c_str());
+        if (data["section"].is_string())
+            setSection(data["section"].get<std::string>());
+        else if (!data["section"].is_null())
+            std::cerr << "Bad type for section" << data["section"].type_name() << std::endl;
 
-        if (data["spacing"] != nullptr) setSpacing(data["spacing"]);
+        if (data["spacing"].is_number_integer())
+            setSpacing(data["spacing"].get<int>());
+        else if (!data["spacing"].is_null())
+            std::cerr << "Bad type for spacing" << data["spacing"].type_name() << std::endl;
     }
 
 

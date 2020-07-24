@@ -38,6 +38,7 @@
 #include <nlohmann/json.hpp>
 #include <safe-map/safemap.h>
 #include "AnimationData.hpp"
+#include "AnimationInfo.hpp"
 #include "EndAnimation.hpp"
 #include "StripInfo.hpp"
 

@@ -43,7 +43,10 @@ public:
     EndAnimation() = default;
 
     explicit EndAnimation(nlohmann::json data) {
-        if (data["id"] != nullptr) setId(((std::string) data["id"]).c_str());
+        if (data["id"].is_string())
+            setId(data["id"].get<std::string>());
+        else if (!data["id"].is_null())
+            std::cerr << "Bad type for id" << data["id"].type_name() << std::endl;
     }
 
     int json(char ** buff) const {

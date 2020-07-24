@@ -23,11 +23,12 @@
 #ifndef ANIMATEDLEDSTRIP_COLORCONTAINER_HPP
 #define ANIMATEDLEDSTRIP_COLORCONTAINER_HPP
 
-#include <vector>
-#include <string>
 #include <cstring>
 #include <iomanip>
 #include <sstream>
+#include <string>
+#include <vector>
+#include <nlohmann/json.hpp>
 
 class ColorContainer {
 public:
@@ -36,6 +37,19 @@ public:
     ColorContainer & addColor(long c) {
         colors.push_back(c);
         return *this;
+    }
+
+    ColorContainer() = default;
+
+    explicit ColorContainer(nlohmann::json data) {
+        if (data["colors"].is_array()) {
+            for (auto & color : data["colors"].items())
+                if (color.value().is_number_integer())
+                    addColor(color.value().get<long>());
+                else
+                    std::cerr << "Bad type for color" << data["color"].type_name() << std::endl;
+        } else if (!data["colors"].is_null())
+            std::cerr << "Bad type for ColorContainer colors" << data["colors"].type_name() << std::endl;
     }
 
     int json(char ** buff) {

@@ -50,7 +50,7 @@ public:
         return *this;
     }
 
-    StripInfo & setFileName(std::string f) {
+    StripInfo & setFileName(const std::string f) {
         fileName.assign(f);
         return *this;
     }
@@ -73,12 +73,35 @@ public:
     StripInfo() = default;
 
     explicit StripInfo(nlohmann::json data) {
-        if (data["numLEDs"] != nullptr) setNumLEDs(data["numLEDs"]);
-        if (data["pin"] != nullptr) setPin(data["pin"]);
-        if (data["imageDebugging"] != nullptr) setImageDebugging(data["imageDebugging"]);
-        if (data["fileName"] != nullptr) setFileName(((std::string) data["fileName"]).c_str());
-        if (data["rendersBeforeSave"] != nullptr) setRendersBeforeSave(data["rendersBeforeSave"]);
-        if (data["threadCount"] != nullptr) setThreadCount(data["threadCount"]);
+        if (data["numLEDs"].is_number_integer())
+            setNumLEDs(data["numLEDs"].get<int>());
+        else if (!data["numLEDs"].is_null())
+            std::cerr << "Bad type for numLEDs" << data["numLEDs"].type_name() << std::endl;
+
+        if (data["pin"].is_number_integer())
+            setPin(data["pin"].get<int>());
+        else if (!data["pin"].is_null())
+            std::cerr << "Bad type for pin" << data["pin"].type_name() << std::endl;
+
+        if (data["imageDebugging"].is_boolean())
+            setImageDebugging(data["imageDebugging"].get<bool>());
+        else if (!data["imageDebugging"].is_null())
+            std::cerr << "Bad type for imageDebugging" << data["imageDebugging"].type_name() << std::endl;
+
+        if (data["fileName"].is_string())
+            setFileName(data["fileName"].get<std::string>());
+        else if (!data["fileName"].is_null())
+            std::cerr << "Bad type for fileName" << data["fileName"].type_name() << std::endl;
+
+        if (data["rendersBeforeSave"].is_number_integer())
+            setRendersBeforeSave(data["rendersBeforeSave"].get<int>());
+        else if (!data["rendersBeforeSave"].is_null())
+            std::cerr << "Bad type for rendersBeforeSave" << data["rendersBeforeSave"].type_name() << std::endl;
+
+        if (data["threadCount"].is_number_integer())
+            setThreadCount(data["threadCount"].get<int>());
+        else if (!data["threadCount"].is_null())
+            std::cerr << "Bad type for threadCount" << data["threadCount"].type_name() << std::endl;
     }
 
 };
