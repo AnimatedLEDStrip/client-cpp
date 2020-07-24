@@ -20,15 +20,36 @@
  *  THE SOFTWARE.
  */
 
-#include "AnimationDataTest.hpp"
-#include "ColorContainerTest.hpp"
-#include "EndAnimationTest.hpp"
-#include "StripInfoTest.hpp"
+#ifndef ANIMATEDLEDSTRIP_COLORCONTAINERTEST_HPP
+#define ANIMATEDLEDSTRIP_COLORCONTAINERTEST_HPP
+
+#include "ColorContainer.hpp"
 #include "gtest/gtest.h"
 
+namespace {
 
-int main(int argc, char ** argv) {
-    testing::InitGoogleTest(&argc, argv);
+    TEST(ColorContainer, DefaultConstructor) {
+        const ColorContainer cc = ColorContainer();
 
-    return RUN_ALL_TESTS();
+        EXPECT_TRUE(cc.colors.empty());
+    }
+
+    TEST(ColorContainer, AddColor) {
+        ColorContainer cc = ColorContainer();
+
+        cc.addColor(0xFF);
+
+        EXPECT_FALSE(cc.colors.empty());
+        EXPECT_TRUE(cc.colors.size() == 1);
+        EXPECT_EQ(cc.colors[0], 0xFF);
+
+        cc.addColor(0xFF00);
+
+        EXPECT_FALSE(cc.colors.empty());
+        EXPECT_TRUE(cc.colors.size() == 2);
+        EXPECT_EQ(cc.colors[0], 0xFF);
+        EXPECT_EQ(cc.colors[1], 0xFF00);
+    }
 }
+
+#endif //ANIMATEDLEDSTRIP_COLORCONTAINERTEST_HPP

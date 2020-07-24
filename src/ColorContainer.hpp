@@ -20,8 +20,8 @@
  *  THE SOFTWARE.
  */
 
-#ifndef ANIMATEDLEDSTRIP_COLORCONTAINER_H
-#define ANIMATEDLEDSTRIP_COLORCONTAINER_H
+#ifndef ANIMATEDLEDSTRIP_COLORCONTAINER_HPP
+#define ANIMATEDLEDSTRIP_COLORCONTAINER_HPP
 
 #include <vector>
 #include <string>
@@ -29,7 +29,8 @@
 #include <iomanip>
 #include <sstream>
 
-struct ColorContainer {
+class ColorContainer {
+public:
     std::vector<long> colors;
 
     ColorContainer & addColor(long c) {
@@ -53,4 +54,4 @@ struct ColorContainer {
     }
 };
 
-#endif  // ANIMATEDLEDSTRIP_COLORCONTAINER_H
+#endif  // ANIMATEDLEDSTRIP_COLORCONTAINER_HPP

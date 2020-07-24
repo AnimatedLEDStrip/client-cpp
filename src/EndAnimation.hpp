@@ -20,36 +20,43 @@
  *  THE SOFTWARE.
  */
 
-#ifndef ANIMATEDLEDSTRIPCLIENT_COLORCONTAINERTEST_H
-#define ANIMATEDLEDSTRIPCLIENT_COLORCONTAINERTEST_H
+#ifndef ANIMATEDLEDSTRIP_ENDANIMATION_HPP
+#define ANIMATEDLEDSTRIP_ENDANIMATION_HPP
 
-#include "ColorContainer.h"
-#include "gtest/gtest.h"
+#include <string>
+#include <nlohmann/json.hpp>
 
-namespace {
+class EndAnimation {
+public:
+    std::string id = "";
 
-    TEST(ColorContainer, DefaultConstructor) {
-        const ColorContainer cc = ColorContainer();
-
-        EXPECT_TRUE(cc.colors.empty());
+    EndAnimation & setId(const std::string & i) {
+        id.assign(i);
+        return *this;
     }
 
-    TEST(ColorContainer, AddColor) {
-        ColorContainer cc = ColorContainer();
-
-        cc.addColor(0xFF);
-
-        EXPECT_FALSE(cc.colors.empty());
-        EXPECT_TRUE(cc.colors.size() == 1);
-        EXPECT_EQ(cc.colors[0], 0xFF);
-
-        cc.addColor(0xFF00);
-
-        EXPECT_FALSE(cc.colors.empty());
-        EXPECT_TRUE(cc.colors.size() == 2);
-        EXPECT_EQ(cc.colors[0], 0xFF);
-        EXPECT_EQ(cc.colors[1], 0xFF00);
+    EndAnimation & setId(const char * i) {
+        id.assign(i);
+        return *this;
     }
-}
 
-#endif //ANIMATEDLEDSTRIPCLIENT_COLORCONTAINERTEST_H
+    EndAnimation() = default;
+
+    explicit EndAnimation(nlohmann::json data) {
+        if (data["id"] != nullptr) setId(((std::string) data["id"]).c_str());
+    }
+
+    int json(char ** buff) const {
+        std::string end = "END :{";
+
+        end.append(R"("id":")");
+        end.append(id);
+        end.append(R"("})");
+
+        std::strcpy(*buff, end.c_str());
+        return end.size();
+    }
+
+};
+
+#endif //ANIMATEDLEDSTRIP_ENDANIMATION_HPP

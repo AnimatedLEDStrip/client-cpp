@@ -23,10 +23,11 @@
 #include <string>
 #include <nlohmann/json.hpp>
 
-#ifndef ANIMATEDLEDSTRIP_STRIPINFO_H
-#define ANIMATEDLEDSTRIP_STRIPINFO_H
+#ifndef ANIMATEDLEDSTRIP_STRIPINFO_HPP
+#define ANIMATEDLEDSTRIP_STRIPINFO_HPP
 
-struct StripInfo {
+class StripInfo {
+public:
     int numLEDs = 0;
     int pin = -1;
     bool imageDebugging = false;
@@ -69,9 +70,9 @@ struct StripInfo {
         return *this;
     }
 
-    StripInfo() {}
+    StripInfo() = default;
 
-    StripInfo(nlohmann::json data) {
+    explicit StripInfo(nlohmann::json data) {
         if (data["numLEDs"] != nullptr) setNumLEDs(data["numLEDs"]);
         if (data["pin"] != nullptr) setPin(data["pin"]);
         if (data["imageDebugging"] != nullptr) setImageDebugging(data["imageDebugging"]);
@@ -82,4 +83,4 @@ struct StripInfo {
 
 };
 
-#endif //ANIMATEDLEDSTRIP_STRIPINFO_H
+#endif //ANIMATEDLEDSTRIP_STRIPINFO_HPP

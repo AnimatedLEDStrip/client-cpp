@@ -20,10 +20,10 @@
  *  THE SOFTWARE.
  */
 
-#ifndef ANIMATEDLEDSTRIP_STRIPINFOTEST_H
-#define ANIMATEDLEDSTRIP_STRIPINFOTEST_H
+#ifndef ANIMATEDLEDSTRIP_STRIPINFOTEST_HPP
+#define ANIMATEDLEDSTRIP_STRIPINFOTEST_HPP
 
-#include "StripInfo.h"
+#include "StripInfo.hpp"
 #include "gtest/gtest.h"
 
 namespace {
@@ -115,4 +115,4 @@ namespace {
 
 }
 
-#endif //ANIMATEDLEDSTRIP_STRIPINFOTEST_H
+#endif //ANIMATEDLEDSTRIP_STRIPINFOTEST_HPP

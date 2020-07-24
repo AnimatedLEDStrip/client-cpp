@@ -20,42 +20,47 @@
  *  THE SOFTWARE.
  */
 
-#ifndef ANIMATEDLEDSTRIP_ENDANIMATION_H
-#define ANIMATEDLEDSTRIP_ENDANIMATION_H
+#ifndef ANIMATEDLEDSTRIP_ENDANIMATIONTEST_HPP
+#define ANIMATEDLEDSTRIP_ENDANIMATIONTEST_HPP
 
-#include <string>
-#include <nlohmann/json.hpp>
+#include "EndAnimation.hpp"
+#include "gtest/gtest.h"
 
-struct EndAnimation {
-    std::string id = "";
-
-    EndAnimation & setId(std::string i) {
-        id.assign(i);
-        return *this;
+namespace {
+    TEST(EndAnimation, Constructor) {
+        EndAnimation e = EndAnimation();
+        EXPECT_STREQ(e.id.c_str(), "");
     }
 
-    EndAnimation & setId(const char * i) {
-        id.assign(i);
-        return *this;
+    TEST(EndAnimation, SetFileName) {
+        EndAnimation e = EndAnimation();
+        EXPECT_STREQ(e.id.c_str(), "");
+        char test[9];
+        strcpy(test, "test");
+        e.setId(test);
+        EXPECT_STREQ(e.id.c_str(), "test");
+        std::string test2 = "test2";
+        e.setId(test2);
+        EXPECT_STREQ(e.id.c_str(), "test2");
     }
 
-    EndAnimation() {}
+    TEST(EndAnimation, FromJSON) {
+        std::string data_str = R"({"id":"test_id"})";
 
-    EndAnimation(nlohmann::json data) {
-        if (data["id"] != nullptr) setId(((std::string) data["id"]).c_str());
+        nlohmann::json data_json = nlohmann::json::parse(data_str);
+        EndAnimation e = EndAnimation(data_json);
+
+        EXPECT_STREQ(e.id.c_str(), "test_id");
     }
 
-    int json(char ** buff) const {
-        std::string end = "END :{";
+    TEST(EndAnimation, FromBadJSON) {
+        std::string data_str = "{}";
 
-        end.append(R"("id":")");
-        end.append(id);
-        end.append(R"("})");
+        nlohmann::json data_json = nlohmann::json::parse(data_str);
+        EndAnimation e = EndAnimation(data_json);
 
-        std::strcpy(*buff, end.c_str());
-        return end.size();
+        EXPECT_STREQ(e.id.c_str(), "");
     }
+}
 
-};
-
-#endif //ANIMATEDLEDSTRIP_ENDANIMATION_H
+#endif //ANIMATEDLEDSTRIP_ENDANIMATIONTEST_HPP

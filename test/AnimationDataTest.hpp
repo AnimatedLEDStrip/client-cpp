@@ -20,11 +20,11 @@
  *  THE SOFTWARE.
  */
 
-#ifndef ANIMATEDLEDSTRIP_ANIMATIONDATATEST_H
-#define ANIMATEDLEDSTRIP_ANIMATIONDATATEST_H
+#ifndef ANIMATEDLEDSTRIP_ANIMATIONDATATEST_HPP
+#define ANIMATEDLEDSTRIP_ANIMATIONDATATEST_HPP
 
-#include "AnimationData.h"
-#include "AnimationSender.h"
+#include "AnimationData.hpp"
+#include "AnimationSender.hpp"
 #include "nlohmann/json.hpp"
 #include "gtest/gtest.h"
 
@@ -226,4 +226,4 @@ namespace {
     }
 }
 
-#endif
+#endif //ANIMATEDLEDSTRIP_ANIMATIONDATATEST_HPP

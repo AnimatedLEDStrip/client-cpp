@@ -20,8 +20,8 @@
  *  THE SOFTWARE.
  */
 
-#ifndef ANIMATEDLEDSTRIP_ANIMATIONSENDER_H
-#define ANIMATEDLEDSTRIP_ANIMATIONSENDER_H
+#ifndef ANIMATEDLEDSTRIP_ANIMATIONSENDER_HPP
+#define ANIMATEDLEDSTRIP_ANIMATIONSENDER_HPP
 
 #include <cstdio>
 #include <cstdlib>
@@ -37,9 +37,9 @@
 #include <vector>
 #include <nlohmann/json.hpp>
 #include <safe-map/safemap.h>
-#include "AnimationData.h"
-#include "EndAnimation.h"
-#include "StripInfo.h"
+#include "AnimationData.hpp"
+#include "EndAnimation.hpp"
+#include "StripInfo.hpp"
 
 using json = nlohmann::json;
 #define DEBUG true
@@ -78,17 +78,17 @@ class AnimationSender {
                 const char * type = t.c_str();
                 auto remainingData = s.substr(5);
 
-                if (strcmp(type, "AINF")) {
+                if (std::strcmp(type, "AINF") == 0) {
                     // TODO
-                } else if (strcmp(type, "DATA")) {
+                } else if (std::strcmp(type, "DATA") == 0) {
                     AnimationData d = AnimationData(json::parse(remainingData));
                     sender.running_animations.insert(std::pair<std::string, AnimationData>(d.id, d));
-                } else if (strcmp(type, "END ")) {
+                } else if (std::strcmp(type, "END ") == 0) {
                     EndAnimation e = EndAnimation(json::parse(remainingData));
                     sender.running_animations.erase(e.id);
-                } else if (strcmp(type, "SECT")) {
+                } else if (std::strcmp(type, "SECT") == 0) {
                     // TODO
-                } else if (strcmp(type, "SINF")) {
+                } else if (std::strcmp(type, "SINF") == 0) {
                     StripInfo i = StripInfo(json::parse(remainingData));
                     sender.info = &i;
                 } else {
@@ -123,13 +123,13 @@ public:
             perror("socket()");
         }
         struct hostent * hp;
-        if ((hp = gethostbyname(host.c_str())) == nullptr) {
+        if ((hp = gethostbyname(host_name.c_str())) == nullptr) {
             perror("gethostbyname()");
         }
         memset((char *) &sa, '\0', sizeof(sa));
         memcpy((char *) &sa.sin_addr.s_addr, hp->h_addr, hp->h_length);
         sa.sin_family = AF_INET;
-        sa.sin_port = htons(port);
+        sa.sin_port = htons(port_num);
     }
 
 
@@ -157,7 +157,7 @@ public:
         return 0;
     }
 
-    int send(const char * buff, int size) {
+    int send(const char * buff, int size) const {
         char * sendBuff;
         std::strcpy(sendBuff, buff);
         std::strcat(sendBuff, delimiter);
@@ -167,13 +167,13 @@ public:
         return ret;
     }
 
-    int send(const AnimationData & d) {
+    int send(const AnimationData & d) const {
         char * buff = new char[MAX_LEN];
         int size = d.json(&buff);
         return send(buff, size);
     }
 
-    int send(const EndAnimation & e) {
+    int send(const EndAnimation & e) const {
         char * buff = new char[MAX_LEN];
         int size = e.json(&buff);
         return send(buff, size);
@@ -183,4 +183,4 @@ public:
 
 const char * AnimationSender::delimiter = ";;;";
 
-#endif // ANIMATEDLEDSTRIP_ANIMATIONSENDER_H
+#endif // ANIMATEDLEDSTRIP_ANIMATIONSENDER_HPP

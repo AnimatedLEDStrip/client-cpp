@@ -20,12 +20,12 @@
  *  THE SOFTWARE.
  */
 
-#ifndef ANIMATEDLEDSTRIP_ANIMATIONDATA_H
-#define ANIMATEDLEDSTRIP_ANIMATIONDATA_H
+#ifndef ANIMATEDLEDSTRIP_ANIMATIONDATA_HPP
+#define ANIMATEDLEDSTRIP_ANIMATIONDATA_HPP
 
 #include <string>
 #include <nlohmann/json.hpp>
-#include "ColorContainer.h"
+#include "ColorContainer.hpp"
 
 #define MAX_LEN 10000
 
@@ -125,9 +125,9 @@ public:
         return *this;
     }
 
-    AnimationData() {}
+    AnimationData() = default;
 
-    AnimationData(nlohmann::json data) {
+    explicit AnimationData(nlohmann::json data) {
         if (data["animation"] != nullptr) setAnimation(((std::string) data["animation"]).c_str());
 
         if (data["colors"] != nullptr)
@@ -237,4 +237,4 @@ public:
 };
 
 
-#endif  // ANIMATEDLEDSTRIP_ANIMATIONDATA_H
+#endif  // ANIMATEDLEDSTRIP_ANIMATIONDATA_HPP
