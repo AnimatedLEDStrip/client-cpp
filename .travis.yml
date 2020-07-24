@@ -14,9 +14,6 @@ addons:
     packages:
       - lcov
       - g++-6
-env:
-  - CC=gcc-6
-  - CXX=g++-6
 
 branches:
   only:
@@ -30,6 +27,9 @@ stages:
 jobs:
   include:
     - stage: test
+      env:
+        - CC=gcc-6
+        - CXX=g++-6
       script:
         - mkdir -p build/run
         - cd build/run
