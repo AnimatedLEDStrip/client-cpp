@@ -22,7 +22,7 @@ project(AnimatedLEDStripClient LANGUAGES CXX)
 set(AnimatedLEDStripClient_VERSION_MAJOR 0)
 set(AnimatedLEDStripClient_VERSION_MINOR 6)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(THREADS_PREFER_PTHREAD_FLAG_ON)
@@ -35,6 +35,8 @@ include(CTest)
 
 include(ExternalProject)
 
+# Dependencies
+
 set(JSON_VERSION v3.7.3)
 set(JSON_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/nlohmann)
 set(JSON_HEADER ${JSON_SRC_DIR}/json.hpp)
@@ -45,35 +47,37 @@ file(DOWNLOAD https://github.com/KarenRei/safe-map/raw/master/safemap.h ${SAFE_M
 file(DOWNLOAD https://github.com/KarenRei/safe-map/raw/master/number.h ${SAFE_MAP_DIR}/number.h)
 set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/safe-map PROPERTIES COMPILE_FLAGS "-w")
 
-# Download and unpack googletest at configure time
-configure_file(googletest.CMakeLists.txt.in googletest-download/CMakeLists.txt)
-execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
-if(result)
-    message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-endif()
-execute_process(COMMAND ${CMAKE_COMMAND} --build .
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
-if(result)
-    message(FATAL_ERROR "Build step for googletest failed: ${result}")
-endif()
+# Testing
 
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+if (CMAKE_BUILD_TYPE STREQUAL Debug AND (PROJECT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR))
+    # Download and unpack googletest at configure time
+    configure_file(googletest.CMakeLists.txt.in googletest-download/CMakeLists.txt)
+    execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+            RESULT_VARIABLE result
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
+    if (result)
+        message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+    endif ()
+    execute_process(COMMAND ${CMAKE_COMMAND} --build .
+            RESULT_VARIABLE result
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
+    if (result)
+        message(FATAL_ERROR "Build step for googletest failed: ${result}")
+    endif ()
 
-add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
-        ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
-        EXCLUDE_FROM_ALL)
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
-if (CMAKE_VERSION VERSION_LESS 2.8.11)
-    include_directories("${gtest_SOURCE_DIR}/include")
-endif()
+    add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
+            ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
+            EXCLUDE_FROM_ALL)
 
-include(CodeCoverage.cmake)
+    if (CMAKE_VERSION VERSION_LESS 2.8.11)
+        include_directories("${gtest_SOURCE_DIR}/include")
+    endif ()
 
-option(BUILD_TESTING "Build the testing tree." OFF)
-if (BUILD_TESTING AND (PROJECT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR))
+    include(CodeCoverage.cmake)
+
+
     enable_testing()
     APPEND_COVERAGE_COMPILER_FLAGS()
     set(COVERAGE_LCOV_EXCLUDES '/usr/include/*' 'test/*' 'build/run/*' 'src/nlohmann/*' 'src/safe-map/*')
@@ -83,7 +87,5 @@ if (BUILD_TESTING AND (PROJECT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR))
     )
     add_subdirectory(test)
 endif ()
-
-set(JSON_BuildTests OFF CACHE INTERNAL "")
 
 add_subdirectory(src)
