@@ -72,7 +72,7 @@ endif()
 
 include(CodeCoverage.cmake)
 
-option(BUILD_TESTING "Build the testing tree." ON)
+option(BUILD_TESTING "Build the testing tree." OFF)
 if (BUILD_TESTING AND (PROJECT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR))
     enable_testing()
     APPEND_COVERAGE_COMPILER_FLAGS()

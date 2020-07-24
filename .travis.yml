@@ -33,7 +33,7 @@ jobs:
       script:
         - mkdir -p build/run
         - cd build/run
-        - cmake -DCMAKE_BUILD_TYPE=Debug ../..
+        - cmake -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON ../..
         - make
         - make test_with_coverage
 
