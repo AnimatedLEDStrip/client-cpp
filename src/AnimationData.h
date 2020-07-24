@@ -26,10 +26,19 @@
 #include <string>
 #include <nlohmann/json.hpp>
 #include "ColorContainer.h"
-#include "Continuous.h"
-#include "Direction.h"
 
 #define MAX_LEN 10000
+
+enum Continuous {
+    CONTINUOUS,
+    NONCONTINUOUS,
+    DEFAULT
+};
+
+enum Direction {
+    FORWARD,
+    BACKWARD
+};
 
 class AnimationData {
 public:
@@ -46,33 +55,115 @@ public:
     int spacing = -1;
 
 
-    AnimationData & setAnimation(std::string & a);
+    AnimationData & setAnimation(std::string & a) {
+        animation.assign(a);
+        return *this;
+    }
 
-    AnimationData & setAnimation(const char * a);
+    AnimationData & setAnimation(const char * a) {
+        animation.assign(a);
+        return *this;
+    }
 
-    AnimationData & addColor(struct ColorContainer & c);
+    AnimationData & addColor(struct ColorContainer & c) {
+        colors.push_back(c);
+        return *this;
+    }
 
-    AnimationData & setCenter(int c);
+    AnimationData & setCenter(int c) {
+        center = c;
+        return *this;
+    }
 
-    AnimationData & setContinuous(enum Continuous c);
+    AnimationData & setContinuous(enum Continuous c) {
+        continuous = c;
+        return *this;
+    }
 
-    AnimationData & setDelay(long d);
+    AnimationData & setDelay(long d) {
+        delay = d;
+        return *this;
+    }
 
-    AnimationData & setDelayMod(double d);
+    AnimationData & setDelayMod(double d) {
+        delay_mod = d;
+        return *this;
+    }
 
-    AnimationData & setDirection(enum Direction d);
+    AnimationData & setDirection(enum Direction d) {
+        direction = d;
+        return *this;
+    }
 
-    AnimationData & setDistance(int d);
+    AnimationData & setDistance(int d) {
+        distance = d;
+        return *this;
+    }
 
-    AnimationData & setId(std::string & i);
+    AnimationData & setId(std::string & i) {
+        id.assign(i);
+        return *this;
+    }
 
-    AnimationData & setId(const char * i);
+    AnimationData & setId(const char * i) {
+        id.assign(i);
+        return *this;
+    }
 
-    AnimationData & setSection(std::string & s);
+    AnimationData & setSection(std::string & s) {
+        section.assign(s);
+        return *this;
+    }
 
-    AnimationData & setSection(const char * s);
+    AnimationData & setSection(const char * s) {
+        section.assign(s);
+        return *this;
+    }
 
-    AnimationData & setSpacing(int s);
+    AnimationData & setSpacing(int s) {
+        spacing = s;
+        return *this;
+    }
+
+    AnimationData() {}
+
+    AnimationData(nlohmann::json data) {
+        if (data["animation"] != nullptr) setAnimation(((std::string) data["animation"]).c_str());
+
+        if (data["colors"] != nullptr)
+            for (auto c : data["colors"]) {
+                ColorContainer cc;
+                for (int col : c["colors"])
+                    cc.addColor(col);
+                addColor(cc);
+            }
+
+        if (data["center"] != nullptr) setCenter(data["center"]);
+
+        if (data["continuous"] == nullptr) setContinuous(DEFAULT);
+        else if (data["continuous"] == true) setContinuous(CONTINUOUS);
+        else if (data["continuous"] == false) setContinuous(NONCONTINUOUS);
+
+        if (data["delay"] != nullptr) setDelay(data["delay"]);
+
+        if (data["delayMod"] != nullptr) setDelayMod(data["delayMod"]);
+
+        if (data["direction"] != nullptr) {
+            if (std::strcmp(((std::string) data["direction"]).c_str(), "FORWARD") == 0)
+                setDirection(FORWARD);
+            else if (std::strcmp(((std::string) data["direction"]).c_str(), "BACKWARD") == 0)
+                setDirection(BACKWARD);
+            else setDirection(FORWARD);
+        }
+
+        if (data["distance"] != nullptr) setDistance(data["distance"]);
+
+        if (data["id"] != nullptr) setId(((std::string) data["id"]).c_str());
+
+        if (data["section"] != nullptr) setSection(((std::string) data["section"]).c_str());
+
+        if (data["spacing"] != nullptr) setSpacing(data["spacing"]);
+    }
 
 
     int json(char ** buff) const {
@@ -97,7 +188,17 @@ public:
         data.append(std::to_string(center));
 
         data.append(R"(,"continuous":)");
-        data.append(continuous_string(continuous));
+        switch (continuous) {
+            case CONTINUOUS:
+                data.append("true");
+                break;
+            case NONCONTINUOUS:
+                data.append("false");
+                break;
+            case DEFAULT:
+                data.append("null");
+                break;
+        }
 
         data.append(R"(,"delay":)");
         data.append(std::to_string(delay));
@@ -106,7 +207,14 @@ public:
         data.append(std::to_string(delay_mod));
 
         data.append(R"(,"direction":")");
-        data.append(direction_string(direction));
+        switch (direction) {
+            case FORWARD:
+                data.append("FORWARD");
+                break;
+            case BACKWARD:
+                data.append("BACKWARD");
+                break;
+        }
 
         data.append(R"(","distance":)");
         data.append(std::to_string(distance));
@@ -126,32 +234,6 @@ public:
         return data.size();
     }
 
-    static AnimationData & get_data_from_json(nlohmann::json data) {
-        auto * d = new AnimationData();
-        if (data["animation"] == NULL) d->setAnimation("");
-        else d->setAnimation(((std::string) data["animation"]).c_str());
-        for (auto c : data["colors"]) {
-            ColorContainer cc;
-            for (int col : c["colors"])
-                cc.addColor(col);
-            d->addColor(cc);
-        }
-        d->setCenter(data["center"]);
-        if (data["continuous"] == nullptr)
-            d->setContinuous(DEFAULT);
-        else
-            d->setContinuous(continuous_from_bool(data["continuous"]));
-        d->setDelay(data["delay"]);
-        d->setDelayMod(data["delayMod"]);
-        d->setDirection(direction_from_string(((std::string) data["direction"]).c_str()));
-        d->setDistance(data["distance"]);
-        if (data["id"] == NULL) d->setId("");
-        else d->setId(((std::string) data["id"]).c_str());
-        if (data["section"] == NULL) d->setSection("");
-        else d->setSection(((std::string) data["section"]).c_str());
-        d->setSpacing(data["spacing"]);
-        return *d;
-    }
 };
 
 

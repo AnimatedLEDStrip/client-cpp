@@ -41,6 +41,7 @@
 #include "StripInfo.h"
 
 using json = nlohmann::json;
+#define DEBUG true
 
 class AnimationSender {
 
@@ -51,6 +52,74 @@ class AnimationSender {
     bool running = false;
 
     pthread_t receiver_handle{};
+
+    static void * receiverLoop(void * args) {
+        AnimationSender sender = *((AnimationSender *) args);
+        int ret;
+        std::vector<std::string> tokens = std::vector<std::string>();
+        char * buff = new char[MAX_LEN];
+
+        while (sender.running) {
+            if (DEBUG) printf("Waiting\n");
+            if ((ret = recv(sender.socket_desc, buff, MAX_LEN - 1, 0)) < 0)
+                printf("error %d", ret);
+            if (DEBUG) printf("%s\n", buff);
+
+            std::stringstream ss(buff);
+            std::string token;
+            tokens.clear();
+
+            while (std::getline(ss, token, ';'))
+                tokens.push_back(token);
+
+            for (const auto & s : tokens) {
+                auto t = s.substr(0, 4);
+                const char * type = t.c_str();
+                auto remainingData = s.substr(5);
+
+                if (strcmp(type, "AINF")) {
+                    // TODO
+                } else if (strcmp(type, "DATA")) {
+                    AnimationData d = AnimationData(json::parse(remainingData));
+                    sender.running_animations.insert(std::pair<std::string, AnimationData>(d.id, d));
+                } else if (strcmp(type, "END ")) {
+                    // TODO
+                } else if (strcmp(type, "SECT")) {
+                    // TODO
+                } else if (strcmp(type, "SINF")) {
+                    StripInfo i = StripInfo(json::parse(remainingData));
+                    sender.info = &i;
+                } else {
+
+                }
+
+
+                if (strcmp(s.substr(0, 4).c_str(), "INFO") == 0) {
+                    json data = json::parse(s.substr(5));
+                    int num = data["numLEDs"];
+                    sender.info = new StripInfo();
+                } else if (strcmp(s.substr(0, 4).c_str(), "DATA") == 0) {
+                    json data = json::parse(s.substr(5));
+                    AnimationData d = AnimationData(data);
+//                if (d.animation == ENDANIMATION)
+//                    sender.running_animations.erase(d.id);
+//                else
+                    sender.running_animations.insert(std::pair<std::string, AnimationData>(d.id, d));
+                }
+            }
+            for (int i = 0; i < MAX_LEN; i++) buff[i] = 0;
+        }
+        return nullptr;
+    }
+
+    int connect() {
+        if (::connect(socket_desc, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
+            perror("connect()");
+            return -1;
+        }
+        printf("Connected\n");
+        return 0;
+    }
 
 public:
     StripInfo * info{};
@@ -74,21 +143,67 @@ public:
     }
 
 
-    int start();
+    int start() {
+        if (connect() < 0) {
+            perror("Could not connect");
+            return -1;
+        }
+        running = true;
+        pthread_create(
+                &receiver_handle,
+                nullptr,
+                receiverLoop,
+                this);
+        return 0;
+    }
 
-    int end();
+    int end() {
+        if (close(socket_desc) < 0) {
+            perror("Could not close socket");
+            return -1;
+        }
+        running = false;
+        pthread_cancel(receiver_handle);
+        return 0;
+    }
 
 
-    int sendAnimation(const AnimationData & d);
+    int sendAnimation(const AnimationData & d) {
+        char * buff = new char[MAX_LEN];
+        int size = d.json(&buff);
+        int ret;
+        if ((ret = write(socket_desc, buff, size)) < 0)
+            printf("error %d", ret);
+        return 0;
+    }
 
-    int endAnimation(const std::string & id);
+    int endAnimation(const std::string & id) {
+        if (running_animations.count(id) == 0)
+            return 1;
+        else {
+//        AnimationData d = running_animations[id];
+//        d.setAnimation(ENDANIMATION);
+//        char *buff = new char[MAX_LEN];
+//
+//        int size = d.json(&buff);
+//        int ret;
+//        if ((ret = write(socket_desc, buff, size)) < 0)
+//            printf("error %d", ret);
+//        sleep(1);
+            return 0;
+        }
+    }
 
-    int endAnimation(const AnimationData & d);
+    int endAnimation(const AnimationData & d) {
+        char * buff = new char[MAX_LEN];
+        int size = d.json(&buff);
+        int ret;
+        if ((ret = write(socket_desc, buff, size)) < 0)
+            printf("error %d", ret);
+        sleep(5);
+        return 0;
+    }
 
-private:
-    int connect();
-
-    static void * receiverLoop(void *);
 };
 
 #endif // ANIMATEDLEDSTRIP_ANIMATIONSENDER_H

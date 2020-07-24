@@ -34,31 +34,50 @@ struct StripInfo {
     int rendersBeforeSave = -1;
     int threadCount = 100;
 
-    StripInfo & setNumLEDs(int n);
+    StripInfo & setNumLEDs(int n) {
+        numLEDs = n;
+        return *this;
+    }
 
-    StripInfo & setPin(int p);
+    StripInfo & setPin(int p) {
+        pin = p;
+        return *this;
+    }
 
-    StripInfo & setImageDebugging(bool i);
+    StripInfo & setImageDebugging(bool i) {
+        imageDebugging = i;
+        return *this;
+    }
 
-    StripInfo & setFileName(std::string f);
+    StripInfo & setFileName(std::string f) {
+        fileName.assign(f);
+        return *this;
+    }
 
-    StripInfo & setFileName(const char * f);
+    StripInfo & setFileName(const char * f) {
+        fileName.assign(f);
+        return *this;
+    }
 
-    StripInfo & setRendersBeforeSave(int r);
+    StripInfo & setRendersBeforeSave(int r) {
+        rendersBeforeSave = r;
+        return *this;
+    }
 
-    StripInfo & setThreadCount(int t);
+    StripInfo & setThreadCount(int t) {
+        threadCount = t;
+        return *this;
+    }
 
-    static StripInfo & get_info_from_json(nlohmann::json data) {
-        auto * i = new StripInfo();
+    StripInfo() {}
 
-        i->setNumLEDs(data["numLEDs"]);
-        i->setPin(data["pin"]);
-        i->setImageDebugging(data["imageDebugging"]);
-        i->setFileName(((std::string) data["fileName"]).c_str());
-        i->setRendersBeforeSave(data["rendersBeforeSave"]);
-        i->setThreadCount(data["threadCount"]);
-
-        return *i;
+    StripInfo(nlohmann::json data) {
+        if (data["numLEDs"] != nullptr) setNumLEDs(data["numLEDs"]);
+        if (data["pin"] != nullptr) setPin(data["pin"]);
+        if (data["imageDebugging"] != nullptr) setImageDebugging(data["imageDebugging"]);
+        if (data["fileName"] != nullptr) setFileName(((std::string) data["fileName"]).c_str());
+        if (data["rendersBeforeSave"] != nullptr) setRendersBeforeSave(data["rendersBeforeSave"]);
+        if (data["threadCount"] != nullptr) setThreadCount(data["threadCount"]);
     }
 
 };

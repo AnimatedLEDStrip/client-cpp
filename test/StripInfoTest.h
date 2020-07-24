@@ -89,7 +89,7 @@ namespace {
         std::string info_str = R"({"numLEDs":240,"pin":12,"imageDebugging":false,"fileName":"file.csv","rendersBeforeSave":1000,"threadCount":200})";
 
         nlohmann::json info_json = nlohmann::json::parse(info_str);
-        StripInfo info = StripInfo::get_info_from_json(info_json);
+        StripInfo info = StripInfo(info_json);
 
         EXPECT_EQ(info.numLEDs, 240);
         EXPECT_EQ(info.pin, 12);
@@ -97,6 +97,20 @@ namespace {
         EXPECT_STREQ(info.fileName.c_str(), "file.csv");
         EXPECT_EQ(info.rendersBeforeSave, 1000);
         EXPECT_EQ(info.threadCount, 200);
+    }
+
+    TEST(StripInfo, FromBadJSON) {
+        std::string info_str = "{}";
+
+        nlohmann::json info_json = nlohmann::json::parse(info_str);
+        StripInfo info = StripInfo(info_json);
+
+        EXPECT_EQ(info.numLEDs, 0);
+        EXPECT_EQ(info.pin, -1);
+        EXPECT_FALSE(info.imageDebugging);
+        EXPECT_STREQ(info.fileName.c_str(), "");
+        EXPECT_EQ(info.rendersBeforeSave, -1);
+        EXPECT_EQ(info.threadCount, 100);
     }
 
 }

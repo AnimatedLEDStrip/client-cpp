@@ -22,8 +22,6 @@
 
 #include "AnimationDataTest.h"
 #include "ColorContainerTest.h"
-#include "ContinuousTest.h"
-#include "DirectionTest.h"
 #include "StripInfoTest.h"
 #include "gtest/gtest.h"
 

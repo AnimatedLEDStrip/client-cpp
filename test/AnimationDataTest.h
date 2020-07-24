@@ -20,8 +20,8 @@
  *  THE SOFTWARE.
  */
 
-#ifndef ANIMATEDLEDSTRIPCLIENT_ANIMATIONDATATEST_H
-#define ANIMATEDLEDSTRIPCLIENT_ANIMATIONDATATEST_H
+#ifndef ANIMATEDLEDSTRIP_ANIMATIONDATATEST_H
+#define ANIMATEDLEDSTRIP_ANIMATIONDATATEST_H
 
 #include "AnimationData.h"
 #include "AnimationSender.h"
@@ -180,7 +180,7 @@ namespace {
         std::string data_str = R"({"animation":"Meteor","colors":[{"colors":[255,65280]},{"colors":[16711680]}],"center":50,"continuous":false,"delay":10,"delayMod":1.500000,"direction":"BACKWARD","distance":45,"id":"TEST","section":"SECT","spacing":5})";
 
         nlohmann::json data_json = nlohmann::json::parse(data_str);
-        AnimationData data = AnimationData::get_data_from_json(data_json);
+        AnimationData data = AnimationData(data_json);
 
         EXPECT_STREQ(data.animation.c_str(), "Meteor");
         EXPECT_TRUE(data.colors.size() == 2);
@@ -202,9 +202,27 @@ namespace {
         // Test when continuous is null, as this is handled separately from true/false
         std::string data_str2 = R"({"animation":"Meteor","colors":[],"center":50,"continuous":null,"delay":10,"delayMod":1.500000,"direction":"BACKWARD","distance":45,"id":"TEST","section":"SECT","spacing":5})";
         nlohmann::json data_json2 = nlohmann::json::parse(data_str2);
-        AnimationData data2 = AnimationData::get_data_from_json(data_json2);
+        AnimationData data2 = AnimationData(data_json2);
 
         EXPECT_EQ(data2.continuous, DEFAULT);
+    }
+
+    TEST(AnimationData, FromBadJSON) {
+        std::string data_str = "{}";
+
+        nlohmann::json data_json = nlohmann::json::parse(data_str);
+        AnimationData data = AnimationData(data_json);
+
+        EXPECT_STREQ(data.animation.c_str(), "Color");
+        EXPECT_EQ(data.center, -1);
+        EXPECT_EQ(data.continuous, DEFAULT);
+        EXPECT_EQ(data.delay, -1);
+        EXPECT_EQ(data.delay_mod, 1.0);
+        EXPECT_EQ(data.direction, FORWARD);
+        EXPECT_EQ(data.distance, -1);
+        EXPECT_STREQ(data.id.c_str(), "");
+        EXPECT_STREQ(data.section.c_str(), "");
+        EXPECT_EQ(data.spacing, -1);
     }
 }
 

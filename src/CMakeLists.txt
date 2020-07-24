@@ -17,36 +17,10 @@
 #  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 #  THE SOFTWARE.
 
-#add_library(running_animation_map RunningAnimationMap.cpp)
-#target_include_directories(running_animation_map PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-#target_link_libraries(running_animation_map Threads::Threads)
-#target_compile_options(running_animation_map PUBLIC -Wall -pedantic)
-
-add_library(continuous Continuous.cpp)
-target_include_directories(continuous PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_compile_options(continuous PUBLIC -Wall)
-
-add_library(direction Direction.cpp)
-target_include_directories(direction PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_compile_options(direction PUBLIC -Wall)
-
-add_library(strip_info StripInfo.cpp)
-target_include_directories(strip_info PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_compile_options(strip_info PUBLIC -Wall)
-
-
-add_library(animation_data AnimationData.cpp)
-target_include_directories(animation_data PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(animation_data continuous)
-target_link_libraries(animation_data direction)
-target_compile_options(animation_data PUBLIC -Wall)
-
-add_library(animation_sender AnimationSender.cpp)
-target_include_directories(animation_sender PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(animation_sender Threads::Threads)
-target_link_libraries(animation_sender animation_data)
-target_link_libraries(animation_sender strip_info)
-target_compile_options(animation_sender PUBLIC -Wall)
+add_library(animatedledstrip INTERFACE)
+target_include_directories(animatedledstrip INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(animatedledstrip INTERFACE Threads::Threads)
+target_compile_options(animatedledstrip INTERFACE -Wall)
 
 
 
