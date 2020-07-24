@@ -21,6 +21,7 @@
  */
 
 #include "AnimationDataTest.hpp"
+#include "AnimationInfoTest.hpp"
 #include "ColorContainerTest.hpp"
 #include "EndAnimationTest.hpp"
 #include "StripInfoTest.hpp"

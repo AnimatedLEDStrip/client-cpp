@@ -176,7 +176,7 @@ public:
             std::cerr << "Bad type for description" << data["description"].type_name() << std::endl;
 
         if (data["signatureFile"].is_string())
-            setSignatureFile(data["signature_file"].get<std::string>());
+            setSignatureFile(data["signatureFile"].get<std::string>());
         else if (!data["signatureFile"].is_null())
             std::cerr << "Bad type for signatureFile" << data["signatureFile"].type_name() << std::endl;
 

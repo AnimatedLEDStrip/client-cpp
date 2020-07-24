@@ -24,7 +24,6 @@
 #define ANIMATEDLEDSTRIP_ANIMATIONDATATEST_HPP
 
 #include "AnimationData.hpp"
-#include "AnimationSender.hpp"
 #include "nlohmann/json.hpp"
 #include "gtest/gtest.h"
 

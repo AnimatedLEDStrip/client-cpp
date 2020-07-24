@@ -80,7 +80,8 @@ class AnimationSender {
                 auto remainingData = s.substr(5);
 
                 if (std::strcmp(type, "AINF") == 0) {
-                    // TODO
+                    AnimationInfo i = AnimationInfo(json::parse(remainingData));
+                    sender.supported_animations.insert(std::pair<std::string, AnimationInfo>(i.name, i));
                 } else if (std::strcmp(type, "DATA") == 0) {
                     AnimationData d = AnimationData(json::parse(remainingData));
                     sender.running_animations.insert(std::pair<std::string, AnimationData>(d.id, d));
@@ -116,6 +117,7 @@ public:
     static const char * delimiter;
 
     safe::map<std::string, AnimationData> running_animations;
+    safe::map<std::string, AnimationInfo> supported_animations;
 
     AnimationSender(const std::string & host, int port) {
         host_name = host;
