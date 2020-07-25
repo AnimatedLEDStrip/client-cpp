@@ -135,7 +135,6 @@ class AnimationSender {
             perror("connect()");
             return -1;
         }
-        printf("Connected\n");
         return 0;
     }
 
@@ -166,6 +165,10 @@ public:
         supported_animations = new safe::map<std::string, AnimationInfo>;
     }
 
+    ~AnimationSender() {
+        delete running_animations;
+        delete supported_animations;
+    }
 
     int start() {
         if (connect() < 0) {
