@@ -26,6 +26,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
 #include <map>
 #include <netdb.h>
 #include <netinet/in.h>
@@ -43,7 +44,7 @@
 #include "StripInfo.hpp"
 
 using json = nlohmann::json;
-#define DEBUG true
+#define DEBUG false
 
 class AnimationSender {
 
@@ -55,31 +56,22 @@ class AnimationSender {
 
     pthread_t receiver_handle{};
 
-    std::string saveForLater;
+    std::string partialData;
 
-    int getString(std::string * retStr, const char * buff) {
-        char * workingBuff = new char[2 * MAX_LEN];
-        strcat(workingBuff, saveForLater.c_str());
-        strcat(workingBuff, buff);
-
-        std::string ret;
-
-        char * buffPtr = workingBuff;
+    int getDelimitedStringLen(const std::string & buff) {
         int numDelimiters = 0;
+        int count = 0;
         while (numDelimiters < 3) {
-            if (*buffPtr == 0) {
-                saveForLater.assign(ret);
+            if (buff[count] == 0) {
+                partialData.assign(buff);
                 return -1;
             }
-            if (*buffPtr == ';') numDelimiters++;
-            ret.append(reinterpret_cast<const char *>(*buffPtr++));
+            if (buff[count] == ';') numDelimiters++;
+            else if (numDelimiters > 0) numDelimiters = 0;
+            count++;
         }
 
-        delete[] workingBuff;
-
-        retStr = &ret;
-
-        return ret.size();
+        return count;
     }
 
     static void * receiverLoop(void * args) {
@@ -94,18 +86,20 @@ class AnimationSender {
                 printf("error %d", ret);
             if (DEBUG) printf("%s\n", buff);
 
-//            std::stringstream ss(buff);
-//            std::string token;
+            tokens.clear();
 
-//            while (std::getline(ss, token, ';')) {
-//                if (strlen(token.c_str()) > 5)
-//                    tokens.push_back(token);
-//            }
+            int len;
+            int start = 0;
 
-            auto * retStr = new std::string;
+            std::string fullStr;
+            fullStr.assign(sender.partialData);
+            fullStr.append(buff);
 
-            while(sender.getString(retStr, buff) != -1) {
-                tokens.push_back(*retStr);
+            sender.partialData.clear();
+
+            while((len = sender.getDelimitedStringLen(fullStr.substr(start))) != -1) {
+                tokens.push_back(fullStr.substr(start, len - 3));
+                start += len;
             }
 
             for (const auto & s : tokens) {
@@ -115,13 +109,13 @@ class AnimationSender {
 
                 if (std::strcmp(type, "AINF") == 0) {
                     AnimationInfo i = AnimationInfo(json::parse(remainingData));
-                    sender.supported_animations.insert(std::pair<std::string, AnimationInfo>(i.name, i));
+                    sender.supported_animations->insert(std::pair<std::string, AnimationInfo>(i.name, i));
                 } else if (std::strcmp(type, "DATA") == 0) {
                     AnimationData d = AnimationData(json::parse(remainingData));
-                    sender.running_animations.insert(std::pair<std::string, AnimationData>(d.id, d));
+                    sender.running_animations->insert(std::pair<std::string, AnimationData>(d.id, d));
                 } else if (std::strcmp(type, "END ") == 0) {
                     EndAnimation e = EndAnimation(json::parse(remainingData));
-                    sender.running_animations.erase(e.id);
+                    sender.running_animations->erase(e.id);
                 } else if (std::strcmp(type, "SECT") == 0) {
                     // TODO
                 } else if (std::strcmp(type, "SINF") == 0) {
@@ -150,8 +144,8 @@ public:
 
     static const char * delimiter;
 
-    safe::map<std::string, AnimationData> running_animations;
-    safe::map<std::string, AnimationInfo> supported_animations;
+    safe::map<std::string, AnimationData> * running_animations;
+    safe::map<std::string, AnimationInfo> * supported_animations;
 
     AnimationSender(const std::string & host, int port) {
         host_name = host;
@@ -167,6 +161,9 @@ public:
         memcpy((char *) &sa.sin_addr.s_addr, hp->h_addr, hp->h_length);
         sa.sin_family = AF_INET;
         sa.sin_port = htons(port_num);
+
+        running_animations = new safe::map<std::string, AnimationData>;
+        supported_animations = new safe::map<std::string, AnimationInfo>;
     }
 
 
@@ -195,7 +192,7 @@ public:
     }
 
     int send(const char * buff, int size) const {
-        char * sendBuff;
+        char * sendBuff = new char[size + 4];
         std::strcpy(sendBuff, buff);
         std::strcat(sendBuff, delimiter);
         int ret;
