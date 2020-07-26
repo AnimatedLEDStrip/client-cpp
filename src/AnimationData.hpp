@@ -126,6 +126,35 @@ public:
         return *this;
     }
 
+    static std::string continuousToString(enum Continuous c) {
+        switch (c) {
+            case CONTINUOUS:
+                return "true";
+            case NONCONTINUOUS:
+                return "false";
+            case DEFAULT:
+                return "null";
+        }
+    }
+
+    static enum Direction directionFromString(const std::string & d) {
+        if (std::strcmp(d.c_str(), "BACKWARD") == 0) return BACKWARD;
+        else if (std::strcmp(d.c_str(), "FORWARD") == 0) return FORWARD;
+        else {
+            std::cerr << "Bad direction string " << d << std::endl;
+            return FORWARD;
+        }
+    }
+
+    static std::string directionToString(enum Direction d) {
+        switch (d) {
+            case FORWARD:
+                return "FORWARD";
+            case BACKWARD:
+                return "BACKWARD";
+        }
+    }
+
     AnimationData() = default;
 
     explicit AnimationData(nlohmann::json data) {
@@ -168,11 +197,8 @@ public:
         else if (!data["delayMod"].is_null())
             std::cerr << "Bad type for delayMod" << data["delayMod"].type_name() << std::endl;
 
-        if (data["direction"].is_string() && std::strcmp(data["direction"].get<std::string>().c_str(), "FORWARD") == 0)
-            setDirection(FORWARD);
-        else if (data["direction"].is_string() &&
-                 std::strcmp(data["direction"].get<std::string>().c_str(), "BACKWARD") == 0)
-            setDirection(BACKWARD);
+        if (data["direction"].is_string())
+            setDirection(directionFromString(data["direction"].get<std::string>()));
         else if (!data["direction"].is_null())
             std::cerr << "Bad type for direction" << data["direction"].type_name() << std::endl;
 
@@ -220,17 +246,7 @@ public:
         data.append(std::to_string(center));
 
         data.append(R"(,"continuous":)");
-        switch (continuous) {
-            case CONTINUOUS:
-                data.append("true");
-                break;
-            case NONCONTINUOUS:
-                data.append("false");
-                break;
-            case DEFAULT:
-                data.append("null");
-                break;
-        }
+        data.append(continuousToString(continuous));
 
         data.append(R"(,"delay":)");
         data.append(std::to_string(delay));
@@ -239,14 +255,7 @@ public:
         data.append(std::to_string(delay_mod));
 
         data.append(R"(,"direction":")");
-        switch (direction) {
-            case FORWARD:
-                data.append("FORWARD");
-                break;
-            case BACKWARD:
-                data.append("BACKWARD");
-                break;
-        }
+        data.append(directionToString(direction));
 
         data.append(R"(","distance":)");
         data.append(std::to_string(distance));

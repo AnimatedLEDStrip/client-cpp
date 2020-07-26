@@ -150,12 +150,20 @@ public:
         return *this;
     }
 
-    static ParamUsage paramUsageString(const std::string & p) {
+    static ParamUsage paramUsageFromString(const std::string & p) {
         if (std::strcmp(p.c_str(), "USED") == 0) return USED;
         else if (std::strcmp(p.c_str(), "NOTUSED") == 0) return NOTUSED;
         else return NOTUSED;
     }
 
+    static std::string paramUsageToString(ParamUsage p) {
+        switch (p) {
+            case USED:
+                return "USED";
+            case NOTUSED:
+                return "NOTUSED";
+        }
+    }
 
     AnimationInfo() = default;
 
@@ -196,27 +204,27 @@ public:
             std::cerr << "Bad type for unlimitedColors" << data["unlimitedColors"].type_name() << std::endl;
 
         if (data["center"].is_string())
-            setCenter(paramUsageString(data["center"].get<std::string>()));
+            setCenter(paramUsageFromString(data["center"].get<std::string>()));
         else if (!data["center"].is_null())
             std::cerr << "Bad type for center" << data["center"].type_name() << std::endl;
 
         if (data["delay"].is_string())
-            setDelay(paramUsageString(data["delay"].get<std::string>()));
+            setDelay(paramUsageFromString(data["delay"].get<std::string>()));
         else if (!data["delay"].is_null())
             std::cerr << "Bad type for delay" << data["delay"].type_name() << std::endl;
 
         if (data["direction"].is_string())
-            setDirection(paramUsageString(data["direction"].get<std::string>()));
+            setDirection(paramUsageFromString(data["direction"].get<std::string>()));
         else if (!data["direction"].is_null())
             std::cerr << "Bad type for direction" << data["direction"].type_name() << std::endl;
 
         if (data["distance"].is_string())
-            setDistance(paramUsageString(data["distance"].get<std::string>()));
+            setDistance(paramUsageFromString(data["distance"].get<std::string>()));
         else if (!data["distance"].is_null())
             std::cerr << "Bad type for distance" << data["distance"].type_name() << std::endl;
 
         if (data["spacing"].is_string())
-            setSpacing(paramUsageString(data["spacing"].get<std::string>()));
+            setSpacing(paramUsageFromString(data["spacing"].get<std::string>()));
         else if (!data["spacing"].is_null())
             std::cerr << "Bad type for spacing" << data["spacing"].type_name() << std::endl;
 
