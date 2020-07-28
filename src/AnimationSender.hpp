@@ -58,6 +58,23 @@ class AnimationSender {
 
     std::string partialData;
 
+    void (* receiveAction)(std::string) = nullptr;
+
+    void (* newAnimationDataAction)(AnimationData) = nullptr;
+
+    void (* newAnimationInfoAction)(AnimationInfo) = nullptr;
+
+    void (* newEndAnimationAction)(EndAnimation) = nullptr;
+
+//    void (*newSectionAction)(Section) = nullptr;
+    void (* newStripInfoAction)(StripInfo) = nullptr;
+
+    void (* connectAction)(std::string, int) = nullptr;
+
+    void (* disconnectAction)(std::string, int) = nullptr;
+
+    void (* unableToConnectAction)(std::string, int) = nullptr;
+
     int getDelimitedStringLen(const std::string & buff) {
         int numDelimiters = 0;
         int count = 0;
@@ -97,7 +114,7 @@ class AnimationSender {
 
             sender.partialData.clear();
 
-            while((len = sender.getDelimitedStringLen(fullStr.substr(start))) != -1) {
+            while ((len = sender.getDelimitedStringLen(fullStr.substr(start))) != -1) {
                 tokens.push_back(fullStr.substr(start, len - 3));
                 start += len;
             }
@@ -107,23 +124,29 @@ class AnimationSender {
                 const char * type = t.c_str();
                 auto remainingData = s.substr(5);
 
-                if (std::strcmp(type, "AINF") == 0) {
+                if (std::strcmp(type, "DATA") == 0) {
+                    AnimationData d = AnimationData(json::parse(remainingData));
+                    if (sender.newAnimationDataAction != nullptr) sender.newAnimationDataAction(d);
+                    sender.running_animations->insert(std::pair<std::string, AnimationData>(d.id, d));
+                } else if (std::strcmp(type, "AINF") == 0) {
                     AnimationInfo i = AnimationInfo(json::parse(remainingData));
                     sender.supported_animations->insert(std::pair<std::string, AnimationInfo>(i.name, i));
-                } else if (std::strcmp(type, "DATA") == 0) {
-                    AnimationData d = AnimationData(json::parse(remainingData));
-                    sender.running_animations->insert(std::pair<std::string, AnimationData>(d.id, d));
+                    if (sender.newAnimationInfoAction != nullptr) sender.newAnimationInfoAction(i);
                 } else if (std::strcmp(type, "END ") == 0) {
                     EndAnimation e = EndAnimation(json::parse(remainingData));
+                    if (sender.newEndAnimationAction != nullptr) sender.newEndAnimationAction(e);
                     sender.running_animations->erase(e.id);
                 } else if (std::strcmp(type, "SECT") == 0) {
                     // TODO
                 } else if (std::strcmp(type, "SINF") == 0) {
                     StripInfo i = StripInfo(json::parse(remainingData));
                     sender.info = &i;
+                    if (sender.newStripInfoAction != nullptr) sender.newStripInfoAction(i);
                 } else {
 
                 }
+
+                if (sender.receiveAction != nullptr) sender.receiveAction(s);
             }
             for (int i = 0; i < MAX_LEN; i++) buff[i] = 0;
         }
@@ -173,6 +196,7 @@ public:
     int start() {
         if (connect() < 0) {
             perror("Could not connect");
+            if (unableToConnectAction != nullptr) unableToConnectAction(host_name, port_num);
             return -1;
         }
         running = true;
@@ -181,6 +205,7 @@ public:
                 nullptr,
                 receiverLoop,
                 this);
+        if (connectAction != nullptr) connectAction(host_name, port_num);
         return 0;
     }
 
@@ -191,6 +216,7 @@ public:
         }
         running = false;
         pthread_cancel(receiver_handle);
+        if (disconnectAction != nullptr) disconnectAction(host_name, port_num);
         return 0;
     }
 
@@ -214,6 +240,52 @@ public:
         char * buff = new char[MAX_LEN];
         int size = e.json(&buff);
         return send(buff, size);
+    }
+
+
+    AnimationSender & setOnReceiveCallback(void (* action)(std::string)) {
+        receiveAction = action;
+        return *this;
+    }
+
+    AnimationSender & setOnConnectCallback(void (* action)(std::string, int)) {
+        connectAction = action;
+        return *this;
+    }
+
+    AnimationSender & setOnDisconnectCallback(void (* action)(std::string, int)) {
+        disconnectAction = action;
+        return *this;
+    }
+
+    AnimationSender & setOnUnableToConnectCallback(void (* action)(std::string, int)) {
+        unableToConnectAction = action;
+        return *this;
+    }
+
+    AnimationSender & setOnNewAnimationDataCallback(void (* action)(AnimationData)) {
+        newAnimationDataAction = action;
+        return *this;
+    }
+
+    AnimationSender & setOnNewAnimationInfoCallback(void (* action)(AnimationInfo)) {
+        newAnimationInfoAction = action;
+        return *this;
+    }
+
+    AnimationSender & setOnNewEndAnimationCallback(void (* action)(EndAnimation)) {
+        newEndAnimationAction = action;
+        return *this;
+    }
+
+//    AnimationSender & setOnNewSectionCallback(void (*action)(Section)) {
+//        newSectionAction = action;
+//        return *this;
+//    }
+
+    AnimationSender & setOnNewStripInfoCallback(void (* action)(StripInfo)) {
+        newStripInfoAction = action;
+        return *this;
     }
 
 };
