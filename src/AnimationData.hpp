@@ -223,6 +223,18 @@ public:
             std::cerr << "Bad type for spacing" << data["spacing"].type_name() << std::endl;
     }
 
+    std::string colorsString() {
+        std::string cols = "[";
+
+        for (auto c : colors) {
+            cols.append(c.colorsString(true));
+            cols.append(",");
+        }
+        if (!colors.empty())
+            cols.pop_back();
+        cols.append("]");
+        return cols;
+    }
 
     int json(char ** buff) const {
         std::string data = "DATA:{";

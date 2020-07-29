@@ -52,16 +52,25 @@ public:
             std::cerr << "Bad type for ColorContainer colors" << data["colors"].type_name() << std::endl;
     }
 
-    int json(char ** buff) {
-        std::string data = R"({"colors":[)";
-
+    std::string colorsString(bool hex = false) {
+        std::string data = "[";
         for (auto c : colors) {
-            data.append(std::to_string(c));
-            data.append(",");
+            std::stringstream ss;
+            if (hex) ss << "0x" << std::hex;
+            ss << c << ",";
+            data.append(ss.str());
         }
         if (!colors.empty())
             data.pop_back();
-        data.append("]}");
+        data.append("]");
+        return data;
+    }
+
+    int json(char ** buff) {
+        std::string data = R"({"colors":)";
+
+        data.append(colorsString(false));
+        data.append("}");
 
         strcpy(*buff, data.c_str());
         return data.size();

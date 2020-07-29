@@ -155,7 +155,7 @@ class AnimationSender {
 
     int connect() {
         if (::connect(socket_desc, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
-            perror("connect()");
+            perror((host_name + " " + std::to_string(port_num) + " connect()").c_str());
             return -1;
         }
         return 0;
