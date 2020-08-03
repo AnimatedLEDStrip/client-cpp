@@ -20,11 +20,12 @@
  *  THE SOFTWARE.
  */
 
-#include <string>
-#include <nlohmann/json.hpp>
-
 #ifndef ANIMATEDLEDSTRIP_STRIPINFO_HPP
 #define ANIMATEDLEDSTRIP_STRIPINFO_HPP
+
+#include <iostream>
+#include <string>
+#include <nlohmann/json.hpp>
 
 class StripInfo {
 public:
@@ -50,7 +51,7 @@ public:
         return *this;
     }
 
-    StripInfo & setFileName(const std::string f) {
+    StripInfo & setFileName(const std::string & f) {
         fileName.assign(f);
         return *this;
     }

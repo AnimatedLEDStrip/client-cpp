@@ -19,7 +19,6 @@ branches:
   only:
     - master
     - /^travis.*/
-    - /^v.*/
 
 stages:
   - name: test
@@ -31,9 +30,9 @@ jobs:
         - CC=gcc-6
         - CXX=g++-6
       script:
-        - mkdir -p build/run
-        - cd build/run
-        - cmake -DCMAKE_BUILD_TYPE=Debug ../..
+        - mkdir -p build
+        - cd build
+        - cmake -DCMAKE_BUILD_TYPE=Debug ..
         - make
         - make test_with_coverage
 

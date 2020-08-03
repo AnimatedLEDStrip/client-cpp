@@ -173,6 +173,7 @@ namespace {
         data.json(&data_str);
         EXPECT_STREQ(data_str,
                      "DATA:{\"animation\":\"Meteor\",\"colors\":[{\"colors\":[255,65280]},{\"colors\":[16711680]}],\"center\":50,\"continuous\":false,\"delay\":10,\"delayMod\":1.500000,\"direction\":\"BACKWARD\",\"distance\":45,\"id\":\"TEST\",\"section\":\"SECT\",\"spacing\":5}");
+        delete[] data_str;
     }
 
     TEST(AnimationData, FromJSON) {

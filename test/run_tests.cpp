@@ -22,8 +22,10 @@
 
 #include "AnimationDataTest.hpp"
 #include "AnimationInfoTest.hpp"
+#include "AnimationSender.hpp"
 #include "ColorContainerTest.hpp"
 #include "EndAnimationTest.hpp"
+#include "SectionTest.hpp"
 #include "StripInfoTest.hpp"
 #include "gtest/gtest.h"
 

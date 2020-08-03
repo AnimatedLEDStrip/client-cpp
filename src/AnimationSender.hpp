@@ -41,6 +41,7 @@
 #include "AnimationData.hpp"
 #include "AnimationInfo.hpp"
 #include "EndAnimation.hpp"
+#include "Section.hpp"
 #include "StripInfo.hpp"
 
 using json = nlohmann::json;
@@ -66,7 +67,8 @@ class AnimationSender {
 
     void (* newEndAnimationAction)(EndAnimation) = nullptr;
 
-//    void (*newSectionAction)(Section) = nullptr;
+    void (*newSectionAction)(Section) = nullptr;
+
     void (* newStripInfoAction)(StripInfo) = nullptr;
 
     void (* connectAction)(std::string, int) = nullptr;
@@ -137,10 +139,12 @@ class AnimationSender {
                     if (sender.newEndAnimationAction != nullptr) sender.newEndAnimationAction(e);
                     sender.running_animations->erase(e.id);
                 } else if (std::strcmp(type, "SECT") == 0) {
-                    // TODO
+                    Section sect = Section(json::parse(remainingData));
+                    if (sender.newSectionAction != nullptr) sender.newSectionAction(sect);
+                    sender.sections->insert(std::pair<std::string, Section>(sect.name, sect));
                 } else if (std::strcmp(type, "SINF") == 0) {
                     StripInfo i = StripInfo(json::parse(remainingData));
-                    sender.info = &i;
+                    sender.stripInfo = &i;
                     if (sender.newStripInfoAction != nullptr) sender.newStripInfoAction(i);
                 } else {
 
@@ -162,12 +166,13 @@ class AnimationSender {
     }
 
 public:
-    StripInfo * info{};
+    StripInfo * stripInfo{};
 
     static const char * delimiter;
 
     safe::map<std::string, AnimationData> * running_animations;
     safe::map<std::string, AnimationInfo> * supported_animations;
+    safe::map<std::string, Section> * sections;
 
     AnimationSender(const std::string & host, int port) {
         host_name = host;
@@ -186,11 +191,14 @@ public:
 
         running_animations = new safe::map<std::string, AnimationData>;
         supported_animations = new safe::map<std::string, AnimationInfo>;
+        sections = new safe::map<std::string, Section>;
     }
 
     ~AnimationSender() {
         delete running_animations;
         delete supported_animations;
+        delete sections;
+        delete stripInfo;
     }
 
     int start() {
@@ -217,6 +225,9 @@ public:
         running = false;
         pthread_cancel(receiver_handle);
         if (disconnectAction != nullptr) disconnectAction(host_name, port_num);
+        supported_animations->clear();
+        running_animations->clear();
+        sections->clear();
         return 0;
     }
 
@@ -278,10 +289,10 @@ public:
         return *this;
     }
 
-//    AnimationSender & setOnNewSectionCallback(void (*action)(Section)) {
-//        newSectionAction = action;
-//        return *this;
-//    }
+    AnimationSender & setOnNewSectionCallback(void (*action)(Section)) {
+        newSectionAction = action;
+        return *this;
+    }
 
     AnimationSender & setOnNewStripInfoCallback(void (* action)(StripInfo)) {
         newStripInfoAction = action;
